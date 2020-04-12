@@ -1,0 +1,122 @@
+######################### Add Package #########################
+#########################    Start    #########################
+CONFIG_PACKAGE_luci-app-netdata=y
+CONFIG_PACKAGE_luci-app-ddns=y
+CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
+CONFIG_PACKAGE_luci-app-samba4=y
+CONFIG_PACKAGE_luci-app-adguardhome=y
+CONFIG_PACKAGE_luci-app-aria2=y
+#########################     End     #########################
+######################### Add Package #########################
+
+
+
+####################### Remove Packages #######################
+#######################      Start      #######################
+CONFIG_PACKAGE_luci-app-adbyby-plus=n
+CONFIG_PACKAGE_luci-app-unblockmusic=n
+CONFIG_UnblockNeteaseMusic_Go=n
+CONFIG_UnblockNeteaseMusic_NodeJS=n
+CONFIG_PACKAGE_ddns-scripts_aliyun=n
+CONFIG_PACKAGE_ddns-scripts_dnspod=n
+#######################       End       #######################
+####################### Remove Packages #######################
+
+
+
+######################### GFW Package #########################
+#########################    Start    #########################
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ipt2socks=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ShadowsocksR=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks_socks=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ShadowsocksR_socks=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_V2ray=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Trojan=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Brook=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_kcptun=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_haproxy=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ChinaDNS_NG=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_pdnsd=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_dns2socks=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_v2ray-plugin=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_simple-obfs=y
+
+CONFIG_PACKAGE_luci-app-openclash=y
+
+CONFIG_PACKAGE_luci-app-ssr-plus=n
+CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_V2ray_plugin=n
+CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_V2ray=n
+CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_Trojan=n
+CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_Redsocks2=n
+CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_Kcptun=n
+CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_ShadowsocksR_Server=n
+#########################     End     #########################
+######################### GFW Package #########################
+
+
+
+######################### Base_RK3328 #########################
+#########################    Start    #########################
+CONFIG_AUTOREMOVE=y
+CONFIG_BRCMFMAC_SDIO=y
+CONFIG_IMAGEOPT=y
+CONFIG_JSON_ADD_IMAGE_INFO=y
+CONFIG_KERNEL_BUILD_USER="Gyj1109"
+CONFIG_KERNEL_ARM_PMU=y
+CONFIG_KERNEL_BLK_DEV_THROTTLING=y
+CONFIG_KERNEL_BTRFS_FS_POSIX_ACL=y
+CONFIG_KERNEL_KALLSYMS=y
+CONFIG_KERNEL_PERF_EVENTS=y
+CONFIG_LUCI_LANG_en=y
+CONFIG_LUCI_LANG_zh-cn=y
+CONFIG_LIBSODIUM_MINIMAL=y
+CONFIG_PACKAGE_bash=y
+CONFIG_PACKAGE_triggerhappy=y
+CONFIG_PACKAGE_uboot-envtools=y
+CONFIG_PACKAGE_usb-modeswitch=y
+CONFIG_PACKAGE_kmod-mmc=y
+CONFIG_PACKAGE_kmod-ikconfig=y
+CONFIG_PACKAGE_kmod-tun=y
+CONFIG_PACKAGE_kmod-usb-net=y
+CONFIG_PACKAGE_kmod-usb-net-rtl8150=y
+CONFIG_PACKAGE_kmod-usb-net-rtl8152=y
+CONFIG_PACKAGE_kmod-rtl8xxxu=y
+CONFIG_PACKAGE_kmod-rtl8192cu=y
+CONFIG_PACKAGE_iw=y
+CONFIG_PACKAGE_iwinfo=y
+CONFIG_PACKAGE_hostapd=y
+CONFIG_PACKAGE_hostapd-basic=y
+CONFIG_PACKAGE_hostapd-utils=y
+CONFIG_PACKAGE_wpad=y
+CONFIG_PACKAGE_wpad-mini=y
+CONFIG_PACKAGE_wpa-supplicant=y
+CONFIG_DRIVER_11N_SUPPORT=y
+CONFIG_DRIVER_11AC_SUPPORT=y
+CONFIG_DRIVER_11W_SUPPORT=y
+CONFIG_PACKAGE_kmod-brcmfmac=y
+CONFIG_PACKAGE_kmod-cfg80211=y
+CONFIG_PACKAGE_pv=y
+CONFIG_PACKAGE_unzip=y
+CONFIG_PACKAGE_losetup=y
+CONFIG_PACKAGE_zstd=y
+CONFIG_PACKAGE_ca-certificates=y
+CONFIG_PACKAGE_openssl-util=y
+CONFIG_PACKAGE_ipv6helper=y
+CONFIG_PACKAGE_dnsmasq_full_dhcpv6=y
+CONFIG_OPENSSL_ENGINE_BUILTIN=y
+CONFIG_OPENSSL_WITH_DTLS=y
+CONFIG_OPENSSL_WITH_EC2M=y
+CONFIG_OPENSSL_WITH_NPN=y
+CONFIG_PACKAGE_autocore=y
+CONFIG_PACKAGE_htop=y
+CONFIG_PACKAGE_diffutils=y
+CONFIG_PACKAGE_vim-fuller=y
+CONFIG_PACKAGE_pv=y
+CONFIG_PACKAGE_pigz=y
+CONFIG_PACKAGE_unzip=y
+CONFIG_PACKAGE_losetup=y
+CONFIG_PACKAGE_luci-app-uhttpd=y
+CONFIG_PACKAGE_luci-theme-argon=y
+#########################     End     #########################
+######################### Base_RK3328 #########################
