@@ -79,8 +79,6 @@ jobs:
           sed -i '/exit/i\chown -R root:root /usr/share/netdata/web' package/lean/default-settings/files/zzz-default-settings
           sed -i 's/option fullcone\t1/option fullcone\t0/' package/network/config/firewall/files/firewall.config
           sed -i '/8.8.8.8/d' package/base-files/files/root/setup.sh
-          mv ../../check_wan4.sh package/base-files/files/usr/bin
-          sed -i '/exit/i\/bin/sh /usr/bin/check_wan4.sh &' package/base-files/files/etc/rc.local
 
       - name: Generate config
         run: |
@@ -92,6 +90,15 @@ jobs:
           cat app_config >> base_config
           sed -e '/^#.*$/d' -e '/^$/d' base_config > configs/config_rk3328
           rm base_config app_config
+
+      - name: Add checkwan script
+        run: |
+          git clone https://github.com/lsl330/R2S-SCRIPTS
+          mv R2S-SCRIPTS/checkwan.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/usr/bin
+          rm -rf R2S-SCRIPTS
+          cd friendlywrt-rk3328/friendlywrt/package/base-files/files
+          chmod +x usr/bin/checkwan.sh
+          sed -i '/exit/i\nohup /bin/sh /usr/bin/checkwan.sh  1>/dev/null 2>&1 &' etc/rc.local
 
       - name: Add auto update script
         run: |
