@@ -145,11 +145,6 @@ jobs:
           cd friendlywrt-rk3328/friendlywrt/package
           git clone https://github.com/rufengsuixing/luci-app-adguardhome.git
 
-      - name: Add Serverchan
-        run: |
-          cd friendlywrt-rk3328/friendlywrt/package
-          git clone https://github.com/tty228/luci-app-serverchan.git
-
       - name: Build
         run: |
           cd friendlywrt-rk3328
