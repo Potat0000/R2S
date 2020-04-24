@@ -108,6 +108,15 @@ jobs:
           git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
           sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' lean/default-settings/files/zzz-default-settings
 
+      - name: Add OPKG Feeds
+        run: |
+          cd friendlywrt-rk3328
+          git clone -b src --depth 1 https://github.com/songchenwen/nanopi-r2s-opkg-feeds.git
+          mkdir -p friendlywrt/package/base-files/files/etc/opkg/keys/
+          cp nanopi-r2s-opkg-feeds/keys/* friendlywrt/package/base-files/files/etc/opkg/keys/
+          rm -rf nanopi-r2s-opkg-feeds
+          echo "grep -qF 'songchenwen.com' /etc/opkg/customfeeds.conf || echo 'src/gz songchenwen https://songchenwen.com/nanopi-r2s-opkg-feeds/packages' >> /etc/opkg/customfeeds.conf" >> friendlywrt/package/base-files/files/root/setup.sh
+
       - name: Add Temperature to Netdata
         run: |
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
