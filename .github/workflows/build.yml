@@ -180,6 +180,7 @@ jobs:
           allowUpdates: true
           artifacts: R2S-Gyj1109-*-ROM.zip
           artifactContentType: application/zip
+          body: Built at ${{ steps.zip_file.outputs.date_today }}
           name: R2S-Gyj1109-${{ steps.zip_file.outputs.date_today }}
           tag: ${{ steps.zip_file.outputs.date_today }}
           token: ${{ secrets.sec_token }}
