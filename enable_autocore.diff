@@ -51,7 +51,7 @@ index 19ea5fb..60e7acd 100755
 
  	else
 -		a=""
-+		a=' | `echo "scale=2; $(cat /sys/class/thermal/thermal_zone0/temp)/1000" | bc`°C'
++		a=' | '`echo "scale=2; $(cat /sys/class/thermal/thermal_zone0/temp)/1000" | bc`'°C'
  	fi
  }
 
