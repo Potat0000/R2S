@@ -101,11 +101,6 @@ jobs:
           chmod +x usr/bin/checkwan.sh
           sed -i '/exit/i\nohup /bin/sh /usr/bin/checkwan.sh  1>/dev/null 2>&1 &' etc/rc.local
 
-      - name: Add auto update script
-        run: |
-          cd friendlywrt-rk3328/friendlywrt/package/base-files/files
-          mv ../../../../../autoupdate.sh root/au && chmod +x root/au
-
       - name: Upgrade Argon theme
         run: |
           cd friendlywrt-rk3328/friendlywrt/package

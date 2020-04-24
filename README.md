@@ -20,17 +20,3 @@ https://github.com/gyj1109/R2S/releases
 
 - 登录地址：192.168.2.1
 - 密码：password
-
-### R2S在线升级方法
-
-##### 方法一：*（推荐）*
-
-SSH登录到路由器，直接执行 `./au` 即可
-
-##### 方法二：
-
-SSH登录到路由器，然后运行下述命令：
-
-```bash
-wget -qO- https://github.com/gyj1109/R2S/raw/master/autoupdate.sh | sh
-```
