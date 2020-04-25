@@ -20,66 +20,104 @@ jobs:
         with:
           ref: master
 
+      - name: Set Date_Today
+        id: set_date
+        run: |
+          commit_time=$(date --iso-8601=date --date "$(git show -s --format=%ci $GITHUB_SHA | cut -d \  -f -2)")
+          echo "##[set-output name=date_today;]$commit_time"
+
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo rm -rf /etc/apt/sources.list.d
           sudo apt-get update
-          sudo apt-get -y --no-install-recommends install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler
+          sudo apt-get -y --no-install-recommends install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler jq
           curl https://raw.githubusercontent.com/friendlyarm/build-env-on-ubuntu-bionic/master/install.sh  | sed '/#/d' | sed 's/\\//g' | sed 's/exit 0//g' | sed 's/sudo apt -y install//g' | sed 's/sudo apt-get -y install//g' | sed 's/:i386//g' | xargs sudo apt-get -y --no-install-recommends install
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
 
       - name: Init Source
         run: |
-          git clone https://github.com/friendlyarm/repo
-          sudo cp repo/repo /usr/bin/
           mkdir friendlywrt-rk3328
           cd friendlywrt-rk3328
           repo init -u https://github.com/friendlyarm/friendlywrt_manifests -b master-v19.07.1 -m rk3328.xml --repo-url=https://github.com/friendlyarm/repo --no-clone-bundle --depth=1
           repo sync -c --no-tags --no-clone-bundle -j8
-          cd friendlywrt/
-          git fetch --unshallow
+          cd friendlywrt/ && git fetch --unshallow
 
-      - name: Patch Kernel
+      - name: Change Feeds to Lean
         run: |
-          cd friendlywrt-rk3328/kernel/
-          git apply ../../add_fullconenat.diff
-          wget https://github.com/armbian/build/raw/master/patch/kernel/rockchip64-dev/RK3328-enable-1512mhz-opp.patch
-          git apply RK3328-enable-1512mhz-opp.patch
-          cd ../
-          git clone https://github.com/openwrt/openwrt
-          cd openwrt/
-          rm target/linux/generic/pending-5.4/403-mtd-hook-mtdsplit-to-Kbuild.patch
-          rm target/linux/generic/hack-5.4/700-swconfig_switch_drivers.patch
+          cd friendlywrt-rk3328
+          git clone https://github.com/coolsnowwolf/lede
+          cd lede
+          cd ../friendlywrt
+          cp -r ../lede/package/lean package/
+          sed -i 's/^src-git luci.*/src-git luci https:\/\/github.com\/coolsnowwolf\/luci/' feeds.conf.default
+          sed -i 's/^src-git packages.*/src-git packages https:\/\/github.com\/coolsnowwolf\/packages/' feeds.conf.default
+
+      - name: Add Packages to Lean
+        run: |
+          echo "src-git scw https://github.com/songchenwen/openwrt-package" >> friendlywrt-rk3328/friendlywrt/package/lean/feeds.conf.default
+
+      - name: Install Openwrt Libs
+        run: |
+          git config --global user.email "action@github.com" && git config --global user.name "GitHub Action"
+          cd friendlywrt-rk3328
+          rm -rf friendlywrt/package/libs
+          cp -r openwrt/package/libs friendlywrt/package/
+
+      - name: Update Feeds
+        run: |
+          cd friendlywrt-rk3328/friendlywrt
+          ./scripts/feeds clean
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Use Chuck's Kernel
+        run: |
+          cd friendlywrt-rk3328
+          rm -rf kernel
+          git clone --depth=1 https://github.com/fanck0605/friendlywrt-kernel.git kernel
+          cd kernel
+          ../../set_repo_hash.sh Kernel
+          cd ../openwrt
+          ../../set_repo_hash.sh OpenWrt
           ./scripts/patch-kernel.sh ../kernel target/linux/generic/backport-5.4
           ./scripts/patch-kernel.sh ../kernel target/linux/generic/pending-5.4
           ./scripts/patch-kernel.sh ../kernel target/linux/generic/hack-5.4
-          cd ../
-          wget https://github.com/torvalds/linux/raw/master/scripts/kconfig/merge_config.sh && chmod +x merge_config.sh
-          grep -i '_NETFILTER_\|FLOW' ../config.override > .config.override
-          ./merge_config.sh -m .config.override kernel/arch/arm64/configs/nanopi-r2_linux_defconfig
-          mv .config kernel/arch/arm64/configs/nanopi-r2_linux_defconfig
+          ./scripts/patch-kernel.sh ../kernel target/linux/octeontx/patches-5.4
+          cp -a ./target/linux/generic/files/* ../kernel/
+          cd ../kernel
+          wget -O net/netfilter/xt_FULLCONENAT.c https://raw.githubusercontent.com/Chion82/netfilter-full-cone-nat/master/xt_FULLCONENAT.c
+          wget -O ../fullcone_nat.patch https://github.com/fanck0605/nanopi-r2s/raw/lean/patches/001-kernel-add-full_cone_nat.patch
+          git apply ../fullcone_nat.patch
+          cd ..
+          curl -s https://api.github.com/repos/fanck0605/nanopi-r2s/releases/latest | jq ".zipball_url" | cut -d '"' -f 2 | wget -O fanck.zip -qi -
+          kernelconfig=$(unzip -Z -1 fanck.zip | grep "nanopi-r2_linux_defconfig")
+          if [ "$kernelconfig" == "" ]; then
+            echo "kernelconfig not fount"
+            exit 1
+          fi
+          unzip fanck.zip $kernelconfig
+          mv $kernelconfig kernel/arch/arm64/configs/nanopi-r2_linux_defconfig
+          rm fanck.zip
 
-      - name: Merge Lean's version and Lienol's version to original OpenWrt
+      - name: Install Mods
         run: |
-          chosen_date="2020-03-28 08:09:00"   # The time should match Dayong's cron time. The date is changeable.
           cd friendlywrt-rk3328/friendlywrt
-          git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
-          git remote add upstream https://github.com/Lienol/openwrt && git fetch upstream
-          lede_hash=$(git log --before="$chosen_date" -1 --pretty=format:"%H" upstream/dev-lean-lede)
-          git checkout $lede_hash -b tmp      # upstream/dev-lean-lede | https://github.com/Lienol/openwrt/commits/dev-lean-lede
-          [ -f README.md ] && (git rm README.md)
-          [ ! -f README ] && (touch README && git add README)
-          git commit -m 'Prepare README for rebasing'
-          friendlywrt_hash=$(git log --before="$chosen_date" -1 --pretty=format:"%H" origin/master-v19.07.1)
-          git checkout $friendlywrt_hash      # origin/master-v19.07.1 | https://github.com/friendlyarm/friendlywrt/commits/master-v19.07.1
-          git rebase adc1a9a3676b8d7be1b48b5aed185a94d8e42728^ --onto tmp -X theirs
-          git checkout upstream/dev-lean-lede -- feeds.conf.default
           git apply ../../enable_autocore.diff
-          sed -i '/exit/i\chown -R root:root /usr/share/netdata/web' package/lean/default-settings/files/zzz-default-settings
-          sed -i 's/option fullcone\t1/option fullcone\t0/' package/network/config/firewall/files/firewall.config
-          sed -i '/8.8.8.8/d' package/base-files/files/root/setup.sh
+          cd ..
+          sed -i "/redirect_https/d" friendlywrt/package/network/services/uhttpd/files/uhttpd.config
+          sed -i '/firewall\.user/d' friendlywrt/package/lean/default-settings/files/zzz-default-settings
+          cd friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status
+          sed -i 's/pcdata(boardinfo.system or "?")/"ARMv8"/' index.htm
+          sed -i 's/<%=luci.sys.exec("cat \/etc\/bench.log") or " "%>//' index.htm
+          sed -i '/luciversion/a \/ ${{ steps.changelog.outputs.buildtag }} by Gyj1109' index.htm
+
+      - name: Unlock CPU 1.5Ghz
+        run: |
+          cd friendlywrt-rk3328/kernel
+          wget https://github.com/armbian/build/raw/master/patch/kernel/rockchip64-dev/RK3328-enable-1512mhz-opp.patch
+          git apply RK3328-enable-1512mhz-opp.patch
 
       - name: Generate config
         run: |
@@ -101,13 +139,6 @@ jobs:
           chmod +x usr/bin/checkwan.sh
           sed -i '/exit/i\nohup /bin/sh /usr/bin/checkwan.sh  1>/dev/null 2>&1 &' etc/rc.local
 
-      - name: Upgrade Argon theme
-        run: |
-          cd friendlywrt-rk3328/friendlywrt/package
-          rm -rf lean/luci-theme-argon
-          git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-          sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' lean/default-settings/files/zzz-default-settings
-
       - name: Add OPKG Feeds
         run: |
           cd friendlywrt-rk3328
@@ -128,11 +159,23 @@ jobs:
           echo "echo 'temp=yes' >> /etc/netdata/charts.d.conf" >> root/setup.sh
           echo "/etc/init.d/netdata restart" >> root/setup.sh
 
+      - name: Upgrade Argon theme
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/package
+          rm -rf lean/luci-theme-argon
+          git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+          sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' lean/default-settings/files/zzz-default-settings
+
       - name: Add Luci-R2SFlasher
         run: |
           git clone https://github.com/songchenwen/nanopi-r2s
           mv nanopi-r2s/luci-app-r2sflasher friendlywrt-rk3328/friendlywrt/package
           rm -rf nanopi-r2s
+
+      - name: Add SSRP
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/package
+          git clone https://github.com/fw876/helloworld.git
 
       - name: Add OpenClash
         run: |
@@ -149,10 +192,20 @@ jobs:
           cd friendlywrt-rk3328/friendlywrt/package
           git clone https://github.com/rufengsuixing/luci-app-adguardhome.git
 
+      - name: Add UPX
+        run: |
+          mkdir -p friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/
+          ln -s /usr/bin/upx-ucl friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/upx
+
+      - name: Clean src
+        run: |
+          cd friendlywrt-rk3328
+          rm -rf lede
+          rm -rf openwrt
+
       - name: Build
         run: |
           cd friendlywrt-rk3328
-          sed -i 's/set -eu/set -u/' scripts/mk-friendlywrt.sh
           ./build.sh nanopi_r2s.mk
 
       - name: Fix FriendlyWrt rootfs owner and group
@@ -166,7 +219,6 @@ jobs:
           sudo losetup -d /dev/loop99
 
       - name: Zip Files
-        id: zip_file
         run: |
           rm -rf ./artifact/
           mkdir -p ./artifact/
@@ -175,8 +227,13 @@ jobs:
           cp friendlywrt-rk3328/friendlywrt/.config ./artifact/config.seed
           cd artifact
           commit_time=$(date --iso-8601=date --date "$(git show -s --format=%ci $GITHUB_SHA | cut -d \  -f -2)")
-          zip ../R2S-Gyj1109-$commit_time-ROM.zip *
-          echo "##[set-output name=date_today;]$commit_time"
+          zip ../R2S-Gyj1109-${{ steps.set_date.outputs.date_today }}-ROM.zip *
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: R2S-Gyj1109-${{ steps.set_date.outputs.date_today }}-ROM
+          path: ./artifact/
 
       - name: Create Release
         uses: ncipollo/release-action@v1
@@ -184,7 +241,7 @@ jobs:
           allowUpdates: true
           artifacts: R2S-Gyj1109-*-ROM.zip
           artifactContentType: application/zip
-          body: Built at ${{ steps.zip_file.outputs.date_today }}
-          name: R2S-Gyj1109-${{ steps.zip_file.outputs.date_today }}
-          tag: ${{ steps.zip_file.outputs.date_today }}
+          body: Built at ${{ steps.set_date.outputs.date_today }}
+          name: R2S-Gyj1109-${{ steps.set_date.outputs.date_today }}
+          tag: ${{ steps.set_date.outputs.date_today }}
           token: ${{ secrets.sec_token }}
