@@ -214,8 +214,7 @@ jobs:
       - name: Build
         id: build
         run: |
-          build_time=$(date --iso-8601=minutes --date "$(git show -s --format=%ci $GITHUB_SHA | cut -d \  -f -2)")
-          echo "##[set-output name=build_time;]$build_time"
+          echo "##[set-output name=build_time;]$(date +%Y-%m-%dT%H-%M)"
           cd friendlywrt-rk3328
           ./build.sh nanopi_r2s.mk
 
@@ -240,6 +239,7 @@ jobs:
           zip ../R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}-ROM.zip *
 
       - name: Upload Artifact
+        continue-on-error: true
         uses: actions/upload-artifact@master
         with:
           name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}
