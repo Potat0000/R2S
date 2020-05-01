@@ -8,6 +8,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    env:
+      enable-1512mhz: ${{ false }}
+
     steps:
 
       - name: Setup timezone
@@ -116,7 +120,8 @@ jobs:
           sed -i 's/<%=luci.sys.exec("cat \/etc\/bench.log") or " "%>//' index.htm
           sed -i '/luciversion/a \/ ${{ steps.build.outputs.build_time }} by ${{ steps.set_name.outputs.username }}' index.htm
 
-      - name: Unlock CPU 1.5Ghz
+      - name: Unlock CPU 1512Mhz
+        if: ${{ env.enable-1512mhz == true }}
         run: |
           cd friendlywrt-rk3328/kernel
           wget https://raw.githubusercontent.com/armbian/build/master/patch/kernel/rockchip64-dev/RK3328-enable-1512mhz-opp.patch
