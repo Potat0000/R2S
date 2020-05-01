@@ -20,11 +20,16 @@ jobs:
         with:
           ref: master
 
-      - name: Set Date_Today
-        id: set_date
+      - name: Set commit_time
+        id: set_var
         run: |
-          commit_time=$(date --iso-8601=date --date "$(git show -s --format=%ci $GITHUB_SHA | cut -d \  -f -2)")
-          echo "##[set-output name=date_today;]$commit_time"
+          commit_time=$(date --iso-8601=minutes --date "$(git show -s --format=%ci $GITHUB_SHA | cut -d \  -f -2)")
+          echo "##[set-output name=commit_time;]$commit_time"
+          if [ "$GITHUB_ACTOR" = "gyj1109" ];then
+            echo "##[set-output name=username;]Gyj1109"
+          else
+            echo "##[set-output name=username;]$GITHUB_ACTOR"
+          fi
 
       - name: Initialization Environment
         env:
@@ -109,7 +114,7 @@ jobs:
           cd friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status
           sed -i 's/pcdata(boardinfo.system or "?")/"ARMv8"/' index.htm
           sed -i 's/<%=luci.sys.exec("cat \/etc\/bench.log") or " "%>//' index.htm
-          sed -i '/luciversion/a \/ ${{ steps.changelog.outputs.buildtag }} by Gyj1109' index.htm
+          sed -i '/luciversion/a \/ ${{ steps.set_var.outputs.commit_time }} by ${{ steps.set_var.outputs.username }}' index.htm
 
       - name: Unlock CPU 1.5Ghz
         run: |
@@ -224,22 +229,21 @@ jobs:
           mv friendlywrt-rk3328/out/*img* ./artifact/
           cp friendlywrt-rk3328/friendlywrt/.config ./artifact/config.seed
           cd artifact
-          commit_time=$(date --iso-8601=date --date "$(git show -s --format=%ci $GITHUB_SHA | cut -d \  -f -2)")
-          zip ../R2S-Gyj1109-${{ steps.set_date.outputs.date_today }}-ROM.zip *
+          zip ../R2S-${{ steps.set_var.outputs.username }}-${{ steps.set_var.outputs.commit_time }}-ROM.zip *
 
       - name: Upload Artifact
         uses: actions/upload-artifact@master
         with:
-          name: R2S-Gyj1109-${{ steps.set_date.outputs.date_today }}-ROM
+          name: R2S-${{ steps.set_var.outputs.username }}-${{ steps.set_var.outputs.commit_time }}-ROM
           path: ./artifact/
 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: R2S-Gyj1109-*-ROM.zip
+          artifacts: R2S-${{ steps.set_var.outputs.username }}-*-ROM.zip
           artifactContentType: application/zip
-          body: Built at ${{ steps.set_date.outputs.date_today }}
-          name: R2S-Gyj1109-${{ steps.set_date.outputs.date_today }}
-          tag: ${{ steps.set_date.outputs.date_today }}
+          body: Built at ${{ steps.set_var.outputs.commit_time }}
+          name: R2S-${{ steps.set_var.outputs.username }}-${{ steps.set_var.outputs.commit_time }}
+          tag: ${{ steps.set_var.outputs.commit_time }}
           token: ${{ secrets.sec_token }}
