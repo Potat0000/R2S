@@ -4,14 +4,16 @@
 
 https://github.com/gyj1109/R2S/releases
 
-(下载zip包之后解压出里面的.img固件包刷入sd卡，切勿直接刷写zip包！)
+* 使用 [balenaEtcher](https://www.balena.io/etcher/) 刷写时需解压出`.img`文件后刷入
 
-### 登录地址
+* 使用 Luci-R2SFlasher 刷写时直接上传`zip`包
+
+### 管理后台
 
 - 地址：192.168.2.1
 - 密码：password
 
-### 用法
+### Fork方法
 
 1. Fork 到自己的账号下
 2. 进入 Actions 界面，启用 Github Actions(**必须要先启用**)
@@ -20,7 +22,7 @@ https://github.com/gyj1109/R2S/releases
 5. 在 `config.seed` 文件中，自定义所需要的软件包
   - 比如需要 luci-app-samba， 那么只要在文件中添加一行 CONFIG_PACKAGE_luci-app-samba=y
 
-*按此方法Fork后编译，**无需**修改用户名，自动按**您的用户名**生成ROM*
+*按此方法Fork后编译，**无需**修改workflow文件，并将自动按**您的用户名**生成ROM*
 
 ### 感谢
 
