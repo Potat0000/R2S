@@ -20,7 +20,7 @@ jobs:
         with:
           ref: master
 
-      - name: Set commit_time
+      - name: Set Environment Variable
         id: set_var
         run: |
           commit_time=$(date --iso-8601=minutes --date "$(git show -s --format=%ci $GITHUB_SHA | cut -d \  -f -2)")
@@ -41,7 +41,7 @@ jobs:
           curl https://raw.githubusercontent.com/friendlyarm/build-env-on-ubuntu-bionic/master/install.sh  | sed '/#/d' | sed 's/\\//g' | sed 's/exit 0//g' | sed 's/sudo apt -y install//g' | sed 's/sudo apt-get -y install//g' | sed 's/:i386//g' | xargs sudo apt-get -y --no-install-recommends install
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
 
-      - name: Init Source
+      - name: Initialization Source
         run: |
           mkdir friendlywrt-rk3328
           cd friendlywrt-rk3328
@@ -78,7 +78,7 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Use Chuck's Kernel
+      - name: Install Chuck's Kernel
         run: |
           cd friendlywrt-rk3328
           rm -rf kernel
@@ -151,6 +151,13 @@ jobs:
           rm -rf nanopi-r2s-opkg-feeds
           echo "grep -qF 'songchenwen.com' /etc/opkg/customfeeds.conf || echo 'src/gz songchenwen https://songchenwen.com/nanopi-r2s-opkg-feeds/packages' >> /etc/opkg/customfeeds.conf" >> friendlywrt/package/base-files/files/root/setup.sh
 
+      - name: Upgrade Argon theme
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/package
+          rm -rf lean/luci-theme-argon
+          git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+          sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' lean/default-settings/files/zzz-default-settings
+
       - name: Add Temperature to Netdata
         run: |
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
@@ -161,13 +168,6 @@ jobs:
           echo "cp /usr/lib/netdata/conf.d/charts.d.conf /etc/netdata/" >> root/setup.sh
           echo "echo 'temp=yes' >> /etc/netdata/charts.d.conf" >> root/setup.sh
           echo "/etc/init.d/netdata restart" >> root/setup.sh
-
-      - name: Upgrade Argon theme
-        run: |
-          cd friendlywrt-rk3328/friendlywrt/package
-          rm -rf lean/luci-theme-argon
-          git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-          sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' lean/default-settings/files/zzz-default-settings
 
       - name: Add Luci-R2SFlasher
         run: |
@@ -234,7 +234,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@master
         with:
-          name: R2S-${{ steps.set_var.outputs.username }}-${{ steps.set_var.outputs.commit_time }}-ROM
+          name: R2S-${{ steps.set_var.outputs.username }}-${{ steps.set_var.outputs.commit_time }}
           path: ./artifact/
 
       - name: Create Release
