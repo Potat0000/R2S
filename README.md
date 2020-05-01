@@ -20,7 +20,7 @@ https://github.com/gyj1109/R2S/releases
 3. 在 [Github Token](https://github.com/settings/tokens) 页面申请 Token (需含有`repo`权限)
 4. 在项目 Settings - Secrets 界面，添加一个 Secret 命名为`sec_token`，内容为上一步申请的 Token
 5. 在 `config.seed` 文件中，自定义所需要的软件包
-  - 比如需要 luci-app-samba， 那么只要在文件中添加一行 CONFIG_PACKAGE_luci-app-samba=y
+    - 比如需要 luci-app-samba， 那么只要在文件中添加一行 CONFIG_PACKAGE_luci-app-samba=y
 
 *按此方法Fork后编译，**无需**修改workflow文件，并将自动按**您的用户名**生成ROM*
 
