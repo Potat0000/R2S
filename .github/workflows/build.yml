@@ -20,11 +20,9 @@ jobs:
         with:
           ref: master
 
-      - name: Set Environment Variable
-        id: set_var
+      - name: Set Username
+        id: set_name
         run: |
-          commit_time=$(date --iso-8601=minutes --date "$(git show -s --format=%ci $GITHUB_SHA | cut -d \  -f -2)")
-          echo "##[set-output name=commit_time;]$commit_time"
           if [ "$GITHUB_ACTOR" = "gyj1109" ];then
             echo "##[set-output name=username;]Gyj1109"
           else
@@ -114,7 +112,7 @@ jobs:
           cd friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status
           sed -i 's/pcdata(boardinfo.system or "?")/"ARMv8"/' index.htm
           sed -i 's/<%=luci.sys.exec("cat \/etc\/bench.log") or " "%>//' index.htm
-          sed -i '/luciversion/a \/ ${{ steps.set_var.outputs.commit_time }} by ${{ steps.set_var.outputs.username }}' index.htm
+          sed -i '/luciversion/a \/ ${{ steps.build.outputs.build_time }} by ${{ steps.set_name.outputs.username }}' index.htm
 
       - name: Unlock CPU 1.5Ghz
         run: |
@@ -207,7 +205,10 @@ jobs:
           rm -rf openwrt
 
       - name: Build
+        id: build
         run: |
+          build_time=$(date --iso-8601=minutes --date "$(git show -s --format=%ci $GITHUB_SHA | cut -d \  -f -2)")
+          echo "##[set-output name=build_time;]$build_time"
           cd friendlywrt-rk3328
           ./build.sh nanopi_r2s.mk
 
@@ -229,21 +230,21 @@ jobs:
           mv friendlywrt-rk3328/out/*img* ./artifact/
           cp friendlywrt-rk3328/friendlywrt/.config ./artifact/config.seed
           cd artifact
-          zip ../R2S-${{ steps.set_var.outputs.username }}-${{ steps.set_var.outputs.commit_time }}-ROM.zip *
+          zip ../R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}-ROM.zip *
 
       - name: Upload Artifact
         uses: actions/upload-artifact@master
         with:
-          name: R2S-${{ steps.set_var.outputs.username }}-${{ steps.set_var.outputs.commit_time }}
+          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}
           path: ./artifact/
 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: R2S-${{ steps.set_var.outputs.username }}-*-ROM.zip
+          artifacts: R2S-${{ steps.set_name.outputs.username }}-*-ROM.zip
           artifactContentType: application/zip
-          body: Built at ${{ steps.set_var.outputs.commit_time }}
-          name: R2S-${{ steps.set_var.outputs.username }}-${{ steps.set_var.outputs.commit_time }}
-          tag: ${{ steps.set_var.outputs.commit_time }}
+          body: Built at ${{ steps.build.outputs.build_time }}
+          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}
+          tag: ${{ steps.build.outputs.build_time }}
           token: ${{ secrets.sec_token }}
