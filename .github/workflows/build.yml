@@ -62,6 +62,7 @@ jobs:
         run: |
           git config --global user.email "action@github.com" && git config --global user.name "GitHub Action"
           cd friendlywrt-rk3328
+          git clone https://github.com/openwrt/openwrt
           rm -rf friendlywrt/package/libs
           cp -r openwrt/package/libs friendlywrt/package/
 
@@ -77,10 +78,7 @@ jobs:
           cd friendlywrt-rk3328
           rm -rf kernel
           git clone --depth=1 https://github.com/fanck0605/friendlywrt-kernel.git kernel
-          cd kernel
-          ../../set_repo_hash.sh Kernel
-          cd ../openwrt
-          ../../set_repo_hash.sh OpenWrt
+          cd openwrt
           ./scripts/patch-kernel.sh ../kernel target/linux/generic/backport-5.4
           ./scripts/patch-kernel.sh ../kernel target/linux/generic/pending-5.4
           ./scripts/patch-kernel.sh ../kernel target/linux/generic/hack-5.4
