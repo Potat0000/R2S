@@ -115,7 +115,6 @@ jobs:
           git apply ../../enable_autocore.diff
           sed -i "/redirect_https/d" package/network/services/uhttpd/files/uhttpd.config
           sed -i '/firewall\.user/d' package/lean/default-settings/files/zzz-default-settings
-          echo -e '\n'  >> package/base-files/files/etc/banner
           cd feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status
           sed -i 's/pcdata(boardinfo.system or "?")/"ARMv8"/' index.htm
           sed -i 's/<%=luci.sys.exec("cat \/etc\/bench.log") or " "%>//' index.htm
@@ -158,15 +157,10 @@ jobs:
 
       - name: Upgrade Argon theme
         run: |
-          cd friendlywrt-rk3328/friendlywrt/package
-          rm -rf lean/luci-theme-argon
+          cd friendlywrt-rk3328/friendlywrt/package/lean
+          rm -rf luci-theme-argon
           git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-
-      - name: Set Dafault
-        run: |
-          cd friendlywrt-rk3328/friendlywrt/package/
-          sed '1c root:$1$lumYyRi8$01Yzs7fnknZk30BKePwzF1:18384:0:99999:7:::' base-files/files/etc/shadow
-          sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' lean/default-settings/files/zzz-default-settings
+          sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' default-settings/files/zzz-default-settings
 
       - name: Add Temperature to Netdata
         run: |

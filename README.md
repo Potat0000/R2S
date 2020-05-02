@@ -11,7 +11,7 @@ https://github.com/gyj1109/R2S/releases
 ### 管理后台
 
 - 地址：192.168.2.1
-- 密码：password
+- 密码：*无*
 
 ### Fork方法
 
