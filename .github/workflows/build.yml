@@ -99,6 +99,7 @@ jobs:
           wget -O ../fullcone_nat.patch https://raw.githubusercontent.com/fanck0605/nanopi-r2s/lean/patches/001-kernel-add-full_cone_nat.patch
           git apply ../fullcone_nat.patch
           cd ..
+          sed -i 's/option fullcone\t1/option fullcone\t0/' friendlywrt/package/network/config/firewall/files/firewall.config
           curl -s https://api.github.com/repos/fanck0605/nanopi-r2s/releases/latest | jq ".zipball_url" | cut -d '"' -f 2 | wget -O fanck.zip -qi -
           kernelconfig=$(unzip -Z -1 fanck.zip | grep "nanopi-r2_linux_defconfig")
           if [ "$kernelconfig" == "" ]; then
