@@ -248,7 +248,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}-ROM.zip
-          path: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}-ROM.zip
+          path: ./artifact/
 
       - name: Create Release
         uses: ncipollo/release-action@v1
