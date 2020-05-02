@@ -164,15 +164,16 @@ jobs:
           git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
           sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' default-settings/files/zzz-default-settings
 
-      - name: Add Temperature to Netdata
+      - name: Add Temperature & Frequency to Netdata
         run: |
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
           mkdir -p usr/lib/netdata/charts.d
-          wget https://raw.githubusercontent.com/songchenwen/nanopi-r2s/master/scripts/temp.chart.sh
-          mv temp.chart.sh usr/lib/netdata/charts.d/
+          mv ../../../../../temp.chart.sh usr/lib/netdata/charts.d/
+          mv ../../../../../freq.chart.sh usr/lib/netdata/charts.d/
           echo "sed -i 's/charts.d = no/charts.d = yes/' /etc/netdata/netdata.conf" >> root/setup.sh
           echo "cp /usr/lib/netdata/conf.d/charts.d.conf /etc/netdata/" >> root/setup.sh
           echo "echo 'temp=yes' >> /etc/netdata/charts.d.conf" >> root/setup.sh
+          echo "echo 'freq=yes' >> /etc/netdata/charts.d.conf" >> root/setup.sh
           echo "/etc/init.d/netdata restart" >> root/setup.sh
 
       - name: Add Luci-R2SFlasher
