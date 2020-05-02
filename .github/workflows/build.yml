@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      enable-1512mhz: ${{ false }}
+      enable-1512mhz: false
+      ssh_debug: false
 
     steps:
 
@@ -66,7 +67,11 @@ jobs:
 
       - name: Add Packages to Lean
         run: |
-          echo "src-git scw https://github.com/songchenwen/openwrt-package" >> friendlywrt-rk3328/friendlywrt/package/lean/feeds.conf.default
+          git clone https://github.com/songchenwen/openwrt-package.git
+          mv openwrt-package/lienol friendlywrt-rk3328/friendlywrt/package
+          mv openwrt-package/others friendlywrt-rk3328/friendlywrt/package
+          mv openwrt-package/package friendlywrt-rk3328/friendlywrt/package
+          rm -rf openwrt-package
 
       - name: Install Openwrt Libs
         run: |
@@ -112,16 +117,15 @@ jobs:
         run: |
           cd friendlywrt-rk3328/friendlywrt
           git apply ../../enable_autocore.diff
-          cd ..
-          sed -i "/redirect_https/d" friendlywrt/package/network/services/uhttpd/files/uhttpd.config
-          sed -i '/firewall\.user/d' friendlywrt/package/lean/default-settings/files/zzz-default-settings
-          cd friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status
+          sed -i "/redirect_https/d" package/network/services/uhttpd/files/uhttpd.config
+          sed -i '/firewall\.user/d' package/lean/default-settings/files/zzz-default-settings
+          echo -e '\n'  >> package/base-files/files/etc/banner
+          cd feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status
           sed -i 's/pcdata(boardinfo.system or "?")/"ARMv8"/' index.htm
           sed -i 's/<%=luci.sys.exec("cat \/etc\/bench.log") or " "%>//' index.htm
-          sed -i '/luciversion/a \/ ${{ steps.build.outputs.build_time }} by ${{ steps.set_name.outputs.username }}' index.htm
 
       - name: Unlock CPU 1512Mhz
-        if: ${{ env.enable-1512mhz == true }}
+        if: env.enable-1512mhz == 'true'
         run: |
           cd friendlywrt-rk3328/kernel
           wget https://raw.githubusercontent.com/armbian/build/master/patch/kernel/rockchip64-dev/RK3328-enable-1512mhz-opp.patch
@@ -161,6 +165,11 @@ jobs:
           cd friendlywrt-rk3328/friendlywrt/package
           rm -rf lean/luci-theme-argon
           git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+
+      - name: Set Dafault
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/package/
+          sed '1c root:$1$lumYyRi8$01Yzs7fnknZk30BKePwzF1:18384:0:99999:7:::' base-files/files/etc/shadow
           sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' lean/default-settings/files/zzz-default-settings
 
       - name: Add Temperature to Netdata
@@ -205,6 +214,10 @@ jobs:
           mkdir -p friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/
           ln -s /usr/bin/upx-ucl friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/upx
 
+      - name: Setup Debug Session
+        if: env.ssh_debug == 'true'
+        uses: P3TERX/debugger-action@master
+
       - name: Clean src
         run: |
           cd friendlywrt-rk3328
@@ -214,7 +227,9 @@ jobs:
       - name: Build
         id: build
         run: |
-          echo "##[set-output name=build_time;]$(date +%Y-%m-%dT%H-%M)"
+          build_time=$(date +%Y-%m-%dT%H-%M)
+          echo "##[set-output name=build_time;]$build_time"
+          sed -i '/luciversion/a \/ $build_time by ${{ steps.set_name.outputs.username }}' friendlywrt-rk3328/friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
           cd friendlywrt-rk3328
           ./build.sh nanopi_r2s.mk
 
@@ -242,7 +257,7 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@master
         with:
-          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}
+          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}-ROM.zip
           path: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}-ROM.zip
 
       - name: Create Release
