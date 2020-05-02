@@ -114,11 +114,12 @@ jobs:
         run: |
           cd friendlywrt-rk3328/friendlywrt
           git apply ../../enable_autocore.diff
-          sed -i "/redirect_https/d" package/network/services/uhttpd/files/uhttpd.config
-          sed -i '/firewall\.user/d' package/lean/default-settings/files/zzz-default-settings
-          cd feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status
-          sed -i 's/pcdata(boardinfo.system or "?")/"ARMv8"/' index.htm
-          sed -i 's/<%=luci.sys.exec("cat \/etc\/bench.log") or " "%>//' index.htm
+          cd ..
+          sed -i '/Load Average/i\\t\t<tr><td width="33%"><%:CPU Temperature%></td><td><%=luci.sys.exec("echo 'scale=2; $(cat /sys/class/thermal/thermal_zone0/temp)/1000' | bc")%> °C | <%=luci.sys.exec("echo '$(cat /sys/devices/system/cpu/cpu[04]/cpufreq/cpuinfo_cur_freq)/1000' | bc")%> MHz</td></tr>' friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+          sed -i 's/pcdata(boardinfo.system or "?")/"ARMv8"/' friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+          sed -i 's/<%=luci.sys.exec("cat \/etc\/bench.log") or " "%>//' friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+          sed -i "/redirect_https/d" friendlywrt/package/network/services/uhttpd/files/uhttpd.config
+          sed -i '/firewall\.user/d' friendlywrt/package/lean/default-settings/files/zzz-default-settings
 
       - name: Unlock CPU 1512Mhz
         if: env.enable-1512mhz == 'true'
