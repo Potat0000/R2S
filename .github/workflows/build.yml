@@ -92,7 +92,7 @@ jobs:
           ./scripts/patch-kernel.sh ../kernel target/linux/generic/backport-5.4
           ./scripts/patch-kernel.sh ../kernel target/linux/generic/pending-5.4
           ./scripts/patch-kernel.sh ../kernel target/linux/generic/hack-5.4
-          ./scripts/patch-kernel.sh ../kernel target/linux/octeontx/patches-5.4
+          ./scripts/patch-kernel.sh ../kernel target/linux/octeontx/patches-5.4 || true
           cp -a ./target/linux/generic/files/* ../kernel/
           cd ../kernel
           wget -O net/netfilter/xt_FULLCONENAT.c https://raw.githubusercontent.com/Chion82/netfilter-full-cone-nat/master/xt_FULLCONENAT.c
