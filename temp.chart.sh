@@ -20,7 +20,7 @@ temp_priority=1
 
 # global variables to store our collected data
 # remember: they need to start with the module name example_
-temp_cpu=40
+temp_cpu=40000
 temp_cpu_file=/sys/class/thermal/thermal_zone0/temp
 
 temp_get() {
@@ -33,7 +33,7 @@ temp_get() {
   # 3. AVOID CALLING TOO MANY EXTERNAL PROGRAMS
   # 4. USE LOCAL VARIABLES (global variables may overlap with other modules)
 
-  if [ -f "$temp_cpu_file" ]; then
+  if ls -Ld -- $temp_cpu_file > /dev/null; then
     temp_cpu=$(cat $temp_cpu_file)
   else
     return 1
@@ -64,8 +64,8 @@ temp_check() {
 temp_create() {
   # create the chart with 3 dimensions
   cat << EOF
-CHART CPU.Temperature 'Temperature' "CPU Temperature" "Celsius Degree" "Temperature" "" line $temp_priority $temp_update_every
-DIMENSION CPU '' absolute 1 1000
+CHART Router.Temperature 'Temperature' "CPU Temperature" "Celsius Degree" "Temperature" "" line $temp_priority $temp_update_every
+DIMENSION Router '' absolute 1 1000
 EOF
 
   return 0
@@ -80,8 +80,8 @@ temp_update() {
 
   # write the result of the work.
   cat << VALUESEOF
-BEGIN CPU.Temperature $1
-SET CPU = $temp_cpu
+BEGIN Router.Temperature $1
+SET Router = $temp_cpu
 END
 VALUESEOF
 
