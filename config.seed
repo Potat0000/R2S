@@ -8,7 +8,6 @@ CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
 CONFIG_PACKAGE_luci-app-filetransfer=y
 CONFIG_PACKAGE_luci-app-netdata=y
 CONFIG_PACKAGE_luci-app-r2sflasher=y
-CONFIG_PACKAGE_luci-app-samba4=y
 CONFIG_PACKAGE_luci-app-vlmcsd=y
 #########################     End     #########################
 ######################### Add Package #########################
@@ -17,48 +16,7 @@ CONFIG_PACKAGE_luci-app-vlmcsd=y
 
 ####################### Remove Packages #######################
 #######################      Start      #######################
-# CONFIG_PACKAGE_ddns-scripts_aliyun is not set
-# CONFIG_PACKAGE_ddns-scripts_dnspod is not set
-# CONFIG_PACKAGE_iptables-mod-ipsec is not set
-# CONFIG_PACKAGE_kmod-ipsec is not set
-# CONFIG_PACKAGE_kmod-ipt-ipsec is not set
-# CONFIG_PACKAGE_kmod-iptunnel6 is not set
-# CONFIG_PACKAGE_kmod-nf-conntrack-netlink is not set
-# CONFIG_PACKAGE_libcares is not set
-# CONFIG_PACKAGE_libevent2 is not set
-# CONFIG_PACKAGE_libgmp is not set
-# CONFIG_PACKAGE_libhttp-parser is not set
-# CONFIG_PACKAGE_libnatpmp is not set
-# CONFIG_PACKAGE_libnet-1.2.x is not set
-# CONFIG_PACKAGE_libnghttp2 is not set
-# CONFIG_PACKAGE_libpcap is not set
-# CONFIG_PACKAGE_libuv is not set
-# CONFIG_PACKAGE_luci-app-adbyby-plus is not set
-# CONFIG_PACKAGE_luci-app-ipsec-vpnd is not set
-# CONFIG_PACKAGE_luci-app-timecontrol is not set
-# CONFIG_PACKAGE_luci-app-unblockmusic is not set
-# CONFIG_UnblockNeteaseMusic_Go is not set
-# CONFIG_UnblockNeteaseMusic_NodeJS is not set
-# CONFIG_PACKAGE_microsocks is not set
-# CONFIG_PACKAGE_strongswan is not set
-# CONFIG_PACKAGE_strongswan-charon is not set
-# CONFIG_PACKAGE_strongswan-ipsec is not set
-# CONFIG_PACKAGE_strongswan-minimal is not set
-# CONFIG_PACKAGE_strongswan-mod-aes is not set
-# CONFIG_PACKAGE_strongswan-mod-gmp is not set
-# CONFIG_PACKAGE_strongswan-mod-hmac is not set
-# CONFIG_PACKAGE_strongswan-mod-kernel-netlink is not set
-# CONFIG_PACKAGE_strongswan-mod-nonce is not set
-# CONFIG_PACKAGE_strongswan-mod-pubkey is not set
-# CONFIG_PACKAGE_strongswan-mod-random is not set
-# CONFIG_PACKAGE_strongswan-mod-sha1 is not set
-# CONFIG_PACKAGE_strongswan-mod-socket-default is not set
-# CONFIG_PACKAGE_strongswan-mod-stroke is not set
-# CONFIG_PACKAGE_strongswan-mod-updown is not set
-# CONFIG_PACKAGE_strongswan-mod-x509 is not set
-# CONFIG_PACKAGE_strongswan-mod-xauth-generic is not set
-# CONFIG_PACKAGE_strongswan-mod-xcbc is not set
-# CONFIG_PACKAGE_vsftpd-alt is not set
+CONFIG_PACKAGE_ariang=n
 #######################       End       #######################
 ####################### Remove Packages #######################
 
@@ -97,11 +55,6 @@ CONFIG_V2RAY_DISABLE_NONE=y
 CONFIG_V2RAY_EXCLUDE_ASSETS=y
 CONFIG_V2RAY_EXCLUDE_V2CTL=y
 CONFIG_V2RAY_JSON_INTERNAL=y
-# CONFIG_V2RAY_COMPRESS_GOPROXY is not set
-# CONFIG_V2RAY_COMPRESS_UPX is not set
-# CONFIG_V2RAY_DISABLE_CUSTOM is not set
-# CONFIG_V2RAY_JSON_NONE is not set
-# CONFIG_V2RAY_JSON_V2CTL is not set
 #########################     End     #########################
 ######################### GFW Package #########################
 
@@ -122,7 +75,6 @@ CONFIG_KERNEL_ARM_PMU=y
 CONFIG_KERNEL_BLK_CGROUP=y
 CONFIG_KERNEL_BLK_DEV_THROTTLING=y
 CONFIG_KERNEL_BTRFS_FS_POSIX_ACL=y
-CONFIG_KERNEL_BUILD_USER="Gyj1109"
 CONFIG_KERNEL_CGROUP_CPUACCT=y
 CONFIG_KERNEL_CGROUP_DEVICE=y
 CONFIG_KERNEL_CGROUP_FREEZER=y
@@ -220,8 +172,5 @@ CONFIG_PACKAGE_wpad-mini=y
 CONFIG_PACKAGE_wpad=y
 CONFIG_PACKAGE_zlib=y
 CONFIG_PACKAGE_zstd=y
-# CONFIG_OPENSSL_ENGINE_BUILTIN_DEVCRYPTO is not set
-# CONFIG_PACKAGE_kmod-cryptodev is not set
-# CONFIG_PACKAGE_libopenssl-devcrypto is not set
 #########################     End     #########################
 ######################### Base_RK3328 #########################
