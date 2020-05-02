@@ -115,8 +115,8 @@ jobs:
           cd friendlywrt-rk3328/friendlywrt
           git apply ../../enable_autocore.diff
           cd ..
-          sed -i "/Load Average/i\\t\t<tr><td width=\"33%\"><%:CPU Information%></td><td><%=luci.sys.exec(\"echo 'scale=2; $(cat /sys/class/thermal/thermal_zone0/temp)/1000' | bc\")%> °C | <%=luci.sys.exec(\"echo '$(cat /sys/devices/system/cpu/cpu[04]/cpufreq/cpuinfo_cur_freq)/1000' | bc\")%> MHz</td></tr>" friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
-          sed -i 's/pcdata(boardinfo.system or "?")/"ARMv8"/' friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+          sed -i "/Load Average/i\t\t<tr><td width=\"33%\"><%:CPU Information%></td><td><%=luci.sys.exec(\"echo \\\"scale=2; \$(cat /sys/class/thermal/thermal_zone0/temp)/1000\\\" | bc\")%> °C | <%=luci.sys.exec(\"echo \\\"\$(cat /sys/devices/system/cpu/cpu[04]/cpufreq/cpuinfo_cur_freq)/1000\\\" | bc\")%> MHz</td></tr>" friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+          sed -i '/pcdata(boardinfo.system or "?")/d' friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
           sed -i "/redirect_https/d" friendlywrt/package/network/services/uhttpd/files/uhttpd.config
           sed -i '/firewall\.user/d' friendlywrt/package/lean/default-settings/files/zzz-default-settings
 
@@ -227,9 +227,8 @@ jobs:
       - name: Build
         id: build
         run: |
-          build_time=$(date +%Y-%m-%dT%H-%M)
-          echo "##[set-output name=build_time;]$build_time"
-          sed -i '/luciversion/a \/ $build_time by ${{ steps.set_name.outputs.username }}' friendlywrt-rk3328/friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+          echo "##[set-output name=build_time;]$(date +%Y-%m-%dT%H-%M)"
+          sed -i '/luciversion/a \t\t\t\/ ${{ steps.build.outputs.build_time }} by ${{ steps.set_name.outputs.username }}' friendlywrt-rk3328/friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
           cd friendlywrt-rk3328
           ./build.sh nanopi_r2s.mk
 
