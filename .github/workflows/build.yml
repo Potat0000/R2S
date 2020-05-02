@@ -67,11 +67,7 @@ jobs:
 
       - name: Add Packages to Lean
         run: |
-          git clone https://github.com/songchenwen/openwrt-package.git
-          mv openwrt-package/lienol friendlywrt-rk3328/friendlywrt/package
-          mv openwrt-package/others friendlywrt-rk3328/friendlywrt/package
-          mv openwrt-package/package friendlywrt-rk3328/friendlywrt/package
-          rm -rf openwrt-package
+          echo "src-git scw https://github.com/songchenwen/openwrt-package" >> friendlywrt-rk3328/friendlywrt/feeds.conf.default
 
       - name: Install Openwrt Libs
         run: |
