@@ -259,7 +259,7 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@master
         with:
-          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}-ROM.zip
+          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}-ROM
           path: ./artifact/
 
       - name: Create Release
