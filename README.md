@@ -22,7 +22,21 @@ https://github.com/gyj1109/R2S/releases
 5. 在 `config.seed` 文件中，自定义所需要的软件包
     - 比如需要 luci-app-samba， 那么只要在文件中添加一行 CONFIG_PACKAGE_luci-app-samba=y
 
+所有可能的选项均在`env`块中，修改成`true`或`false`来启用或禁用
+
 *按此方法Fork后编译，**无需**修改workflow文件，并将自动按**您的用户名**生成ROM*
+
+### 贡献
+
+欢迎提出各种Issue，包括但不限于：
+
+* 新模块需求
+* Fork后编译失败的帮助
+* 新的编译选项（及将部分功能设置成可选择性编译）
+* 来自其他R2S编译项目的优秀workflow建议
+* ……
+
+此外，一个人精力有限。如果有能力，一定要多提PR哦！
 
 ### 感谢
 
