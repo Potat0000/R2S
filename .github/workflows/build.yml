@@ -184,13 +184,14 @@ jobs:
       - name: Add SSRP
         run: |
           git clone https://github.com/fw876/helloworld.git
-          sed -i 's/"admin", "services", "shadowsocksr"/"admin", "vpn", "shadowsocksr"/g' helloworld/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua
+          sed -i 's/"admin", "services", "shadowsocksr"/"admin", "vpn", "shadowsocksr"/g' `grep '"admin", "services", "shadowsocksr"' -rl helloworld/luci-app-ssr-plus`
           mv helloworld/luci-app-ssr-plus friendlywrt-rk3328/friendlywrt/package
           rm -rf helloworld
 
       - name: Add OpenClash
         run: |
           git clone https://github.com/vernesong/OpenClash.git
+          sed -i 's/"admin", "services", "openclash"/"admin", "vpn", "openclash"/g' `grep '"admin", "services", "openclash"' -rl OpenClash/luci-app-openclash`
           mv OpenClash/luci-app-openclash friendlywrt-rk3328/friendlywrt/package
           rm -rf OpenClash
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
