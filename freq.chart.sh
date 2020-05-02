@@ -12,18 +12,18 @@
 
 # _update_every is a special variable - it holds the number of seconds
 # between the calls of the _update() function
-freq_update_every=
+temp_update_every=
 
 # the priority is used to sort the charts on the dashboard
 # 1 = the first chart
-freq_priority=1
+temp_priority=1
 
 # global variables to store our collected data
 # remember: they need to start with the module name example_
-freq_cpu=800
-freq_cpu_file=/sys/devices/system/cpu/cpu[04]/cpufreq/cpuinfo_cur_freq
+temp_cpu=800
+temp_cpu_file=/sys/devices/system/cpu/cpu[04]/cpufreq/cpuinfo_cur_freq
 
-freq_get() {
+temp_get() {
   # do all the work to collect / calculate the values
   # for each dimension
   #
@@ -33,8 +33,8 @@ freq_get() {
   # 3. AVOID CALLING TOO MANY EXTERNAL PROGRAMS
   # 4. USE LOCAL VARIABLES (global variables may overlap with other modules)
 
-  if [ -f "$freq_cpu_file" ]; then
-    freq_cpu=$(cat $freq_cpu_file)
+  if [ -f "$temp_cpu_file" ]; then
+    temp_cpu=$(cat $temp_cpu_file)
   else
     return 1
   fi
@@ -47,7 +47,7 @@ freq_get() {
 }
 
 # _check is called once, to find out if this chart should be enabled or not
-freq_check() {
+temp_check() {
   # this should return:
   #  - 0 to enable the chart
   #  - 1 to disable the chart
@@ -55,16 +55,16 @@ freq_check() {
   # check something
 
   # check that we can collect data
-  freq_get || return 1
+  temp_get || return 1
 
   return 0
 }
 
 # _create is called once, to create the charts
-freq_create() {
+temp_create() {
   # create the chart with 3 dimensions
   cat << EOF
-CHART CPU.Frequency 'Frequency' "CPU Frequency" "MHz" "Frequency" "" line $freq_priority $freq_update_every
+CHART CPU.Frequency 'Frequency' "CPU Frequency" "MHz" "Frequency" "" line $temp_priority $temp_update_every
 DIMENSION CPU '' absolute 1 1000
 EOF
 
@@ -72,16 +72,16 @@ EOF
 }
 
 # _update is called continuously, to collect the values
-freq_update() {
+temp_update() {
   # the first argument to this function is the microseconds since last update
   # pass this parameter to the BEGIN statement (see bellow).
 
-  freq_get || return 1
+  temp_get || return 1
 
   # write the result of the work.
   cat << VALUESEOF
 BEGIN CPU.Frequency $1
-SET CPU = $freq_cpu
+SET CPU = $temp_cpu
 END
 VALUESEOF
 
