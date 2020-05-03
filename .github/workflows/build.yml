@@ -114,11 +114,10 @@ jobs:
         run: |
           cd friendlywrt-rk3328/friendlywrt
           git apply ../../enable_autocore.diff
-          echo "sed -i 's/os.date("%c")/os.date("%Y-%m-%d %H:%M:%S %A")/' /usr/lib/lua/luci/controller/admin/system.lua" >> package/base-files/files/root/setup.sh
           sed -i '/redirect_https/d' package/network/services/uhttpd/files/uhttpd.config
           sed -i '/firewall\.user/d' package/lean/default-settings/files/zzz-default-settings
           cd feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/
-          sed -i '/Load Average/i\\t\t<tr><td width=\"33%\"><%:CPU Temperature%></td><td><%=luci.sys.exec("echo scale=2\\;\$(cat /sys/class/thermal/thermal_zone0/temp)/1000 | bc")%> °C | <%=luci.sys.exec("freq=\$(cat /sys/devices/system/cpu/cpu[04]/cpufreq/cpuinfo_cur_freq) && echo ${freq:0:${#freq}-3}")%> MHz</td></tr>' index.htm
+          sed -i '/Load Average/i\\t\t<tr><td width=\"33%\"><%:CPU Temperature%></td><td><%=luci.sys.exec("temp=\$(cat /sys/class/thermal/thermal_zone0/temp) && echo ${temp:0:${#temp}-3}")%> °C | <%=luci.sys.exec("freq=\$(cat /sys/devices/system/cpu/cpu[04]/cpufreq/cpuinfo_cur_freq) && echo ${freq:0:${#freq}-3}")%> MHz</td></tr>' index.htm
           sed -i 's/ <%=luci.sys.exec("cat \/etc\/bench.log") or " "%>//' index.htm
           sed -i '/pcdata(boardinfo.system or "?")/d' index.htm
 
@@ -140,6 +139,11 @@ jobs:
           sed -e '/^#.*$/d' -e '/^$/d' base_config > configs/config_rk3328
           rm base_config app_config
 
+      - name: Update Target.mk
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/include
+          sed -i 's/dnsmasq /dnsmasq-full default-settings luci /' target.mk
+
       - name: Add checkwan script
         run: |
           git clone https://github.com/lsl330/R2S-SCRIPTS
@@ -149,6 +153,11 @@ jobs:
           chmod +x usr/bin/checkwan.sh
           sed -i '/exit/i\nohup /bin/sh /usr/bin/checkwan.sh  1>/dev/null 2>&1 &' etc/rc.local
 
+      - name: Add setup.sh script
+        run: |
+          cp setup.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/root
+          chmod +x friendlywrt-rk3328/friendlywrt/package/base-files/files/root/setup.sh
+
       - name: Add & Remove OPKG Feeds
         run: |
           cd friendlywrt-rk3328
@@ -156,9 +165,6 @@ jobs:
           mkdir -p friendlywrt/package/base-files/files/etc/opkg/keys/
           cp nanopi-r2s-opkg-feeds/keys/* friendlywrt/package/base-files/files/etc/opkg/keys/
           rm -rf nanopi-r2s-opkg-feeds
-          echo "grep -qF 'songchenwen.com' /etc/opkg/customfeeds.conf || echo 'src/gz songchenwen https://songchenwen.com/nanopi-r2s-opkg-feeds/packages' >> /etc/opkg/customfeeds.conf" >> friendlywrt/package/base-files/files/root/setup.sh
-          echo "sed -i '/songchenwen/d' /etc/opkg/distfeeds.conf" >> friendlywrt/package/base-files/files/root/setup.sh
-          echo "sed -i '/rk3328/d' /etc/opkg/distfeeds.conf" >> friendlywrt/package/base-files/files/root/setup.sh
 
       - name: Upgrade Argon theme
         run: |
@@ -212,11 +218,6 @@ jobs:
         run: |
           mkdir -p friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/
           ln -s /usr/bin/upx-ucl friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/upx
-
-      - name: Update Target.mk
-        run: |
-          cd friendlywrt-rk3328/friendlywrt/include
-          sed -i 's/dnsmasq /dnsmasq-full default-settings luci /' target.mk
 
       - name: Setup Debug Session
         if: env.ssh_debug == 'true'
