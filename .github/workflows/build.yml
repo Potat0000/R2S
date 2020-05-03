@@ -114,7 +114,7 @@ jobs:
         run: |
           cd friendlywrt-rk3328/friendlywrt
           git apply ../../enable_autocore.diff
-          echo "sed -i 's/os.date("%c")/os.date("%Y-%m-%d %H:%M:%S %A")/' /usr/lib/lua/luci/controller/admin/system.lua" >> root/setup.sh
+          echo "sed -i 's/os.date("%c")/os.date("%Y-%m-%d %H:%M:%S %A")/' /usr/lib/lua/luci/controller/admin/system.lua" >> package/base-files/files/root/setup.sh
           sed -i '/redirect_https/d' package/network/services/uhttpd/files/uhttpd.config
           sed -i '/firewall\.user/d' package/lean/default-settings/files/zzz-default-settings
           cd feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/
