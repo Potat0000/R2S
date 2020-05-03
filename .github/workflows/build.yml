@@ -147,7 +147,7 @@ jobs:
       - name: Generate addon config
         if: matrix.features == '-Features'
         run: |
-          sed -e '/^#.*$/d' -e '/^$/d' config.addon.seed > friendlywrt-rk3328/configs/config_rk3328
+          sed -e '/^#.*$/d' -e '/^$/d' config.addon.seed >> friendlywrt-rk3328/configs/config_rk3328
 
       - name: Update Target.mk
         run: |
