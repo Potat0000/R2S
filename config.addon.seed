@@ -1,4 +1,4 @@
-######################## Other Package ########################
-# Which I won't use.
+# Other Packages
+# Which would only be built into WithFeatures version
+
 CONFIG_PACKAGE_luci-app-zerotier=y
-######################## Other Package ########################
