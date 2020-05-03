@@ -1,5 +1,7 @@
 # NanoPi R2S OpenWrt 固件自动编译
 
+喜欢记得右上角Star哟！！
+
 ### 发布地址
 
 https://github.com/gyj1109/R2S/releases
