@@ -140,13 +140,13 @@ jobs:
           cat configs/config_rk3328 | grep "TARGET" > base_config
           grep -f app_config -v -F -x ../config.seed >> base_config
           cat app_config >> base_config
-          sed -e '/^#.*$/d' -e '/^$/d' base_config > friendlywrt-rk3328/configs/config_rk3328
+          sed -e '/^#.*$/d' -e '/^$/d' base_config > configs/config_rk3328
           rm base_config app_config
 
       - name: Generate addon config
         if: matrix.features == '-Features'
         run: |
-          sed -e '/^#.*$/d' -e '/^$/d' config.addon.seed > configs/config_rk3328
+          sed -e '/^#.*$/d' -e '/^$/d' config.addon.seed > friendlywrt-rk3328/configs/config_rk3328
 
       - name: Update Target.mk
         run: |
