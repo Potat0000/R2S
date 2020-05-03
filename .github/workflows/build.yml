@@ -175,6 +175,7 @@ jobs:
           echo "cp /usr/lib/netdata/conf.d/charts.d.conf /etc/netdata/" >> root/setup.sh
           echo "echo 'temp=yes' >> /etc/netdata/charts.d.conf" >> root/setup.sh
           echo "echo 'freq=yes' >> /etc/netdata/charts.d.conf" >> root/setup.sh
+          echo "'/update every = /a \\thistory = 86400' /etc/netdata/netdata.conf" >> root/setup.sh
           echo "/etc/init.d/netdata restart" >> root/setup.sh
 
       - name: Add Luci-R2SFlasher
