@@ -9,6 +9,9 @@ CONFIG_PACKAGE_luci-app-dockerman
 CONFIG_PACKAGE_luci-app-fileassistant=y
 CONFIG_PACKAGE_luci-app-filetransfer=y
 CONFIG_PACKAGE_luci-app-netdata=y
+CONFIG_PACKAGE_luci-app-unblockmusic=y
+CONFIG_UnblockNeteaseMusic_Go=y
+CONFIG_UnblockNeteaseMusic_NodeJS=y
 CONFIG_PACKAGE_luci-app-r2sflasher=y
 CONFIG_PACKAGE_luci-app-syncthing=y
 CONFIG_PACKAGE_luci-app-vlmcsd=y
@@ -19,9 +22,7 @@ CONFIG_PACKAGE_luci-app-vlmcsd=y
 
 ####################### Remove Packages #######################
 #######################      Start      #######################
-CONFIG_PACKAGE_luci-app-unblockmusic=n
-CONFIG_UnblockNeteaseMusic_Go=n
-CONFIG_UnblockNeteaseMusic_NodeJS=n
+
 #######################       End       #######################
 ####################### Remove Packages #######################
 
