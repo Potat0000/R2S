@@ -230,9 +230,19 @@ jobs:
         run: |
           echo "##[set-output name=build_time;]$(date +%Y-%m-%dT%H-%M)"
 
-      - name: Build
+      - name: Test
         run: |
           sed -i '/luciversion/a\\t\t\t\/ ${{ steps.set_time.outputs.build_time }} by ${{ steps.set_name.outputs.username }}' friendlywrt-rk3328/friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+      - name: Upload Artifact
+        continue-on-error: true
+        uses: actions/upload-artifact@master
+        with:
+          name: test
+          path: ./friendlywrt-rk3328/friendlywrt/feeds/luci/modules/luci-mod-admin-full/
+
+      - name: Build
+        run: |
+          #sed -i '/luciversion/a\\t\t\t\/ ${{ steps.set_time.outputs.build_time }} by ${{ steps.set_name.outputs.username }}' friendlywrt-rk3328/friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
           cd friendlywrt-rk3328
           ./build.sh nanopi_r2s.mk
 
