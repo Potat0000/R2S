@@ -114,11 +114,12 @@ jobs:
         run: |
           cd friendlywrt-rk3328/friendlywrt
           git apply ../../enable_autocore.diff
-          cd ..
-          sed -i "/Load Average/i\t\t<tr><td width=\"33%\"><%:CPU Information%></td><td><%=luci.sys.exec(\"echo \\\"scale=2; \$(cat /sys/class/thermal/thermal_zone0/temp)/1000\\\" | bc\")%> °C | <%=luci.sys.exec(\"echo \\\"\$(cat /sys/devices/system/cpu/cpu[04]/cpufreq/cpuinfo_cur_freq)/1000\\\" | bc\")%> MHz</td></tr>" friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
-          sed -i '/pcdata(boardinfo.system or "?")/d' friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
-          sed -i "/redirect_https/d" friendlywrt/package/network/services/uhttpd/files/uhttpd.config
-          sed -i '/firewall\.user/d' friendlywrt/package/lean/default-settings/files/zzz-default-settings
+          sed -i "/redirect_https/d" package/network/services/uhttpd/files/uhttpd.config
+          sed -i '/firewall\.user/d' package/lean/default-settings/files/zzz-default-settings
+          cd feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/
+          sed -i "/Load Average/i\\\t\t<tr><td width=\"33%\"><%:CPU Temperature%></td><td><%=luci.sys.exec(\"echo \\\\\"scale=2; \$(cat /sys/class/thermal/thermal_zone0/temp)/1000\\\\\" | bc\")%> °C | <%=luci.sys.exec(\"echo \\\\\"\$(cat /sys/devices/system/cpu/cpu[04]/cpufreq/cpuinfo_cur_freq)/1000\\\\\" | bc\")%> MHz</td></tr>" index.htm
+          sed -i 's/ <%=luci.sys.exec("cat \/etc\/bench.log") or " "%>//' index.htm
+          sed -i '/pcdata(boardinfo.system or "?")/d' index.htm
 
       - name: Unlock CPU 1512Mhz
         if: env.enable-1512mhz == 'true'
@@ -224,11 +225,14 @@ jobs:
           rm -rf lede
           rm -rf openwrt
 
-      - name: Build
-        id: build
+      - name: Set Build Time
+        id: set_time
         run: |
           echo "##[set-output name=build_time;]$(date +%Y-%m-%dT%H-%M)"
-          sed -i '/luciversion/a \t\t\t\/ ${{ steps.build.outputs.build_time }} by ${{ steps.set_name.outputs.username }}' friendlywrt-rk3328/friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+
+      - name: Build
+        run: |
+          sed -i '/luciversion/a\\t\t\t\/ ${{ steps.set_time.outputs.build_time }} by ${{ steps.set_name.outputs.username }}' friendlywrt-rk3328/friendlywrt/feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
           cd friendlywrt-rk3328
           ./build.sh nanopi_r2s.mk
 
@@ -252,13 +256,13 @@ jobs:
           mv friendlywrt-rk3328/out/*img* ./artifact/
           cp friendlywrt-rk3328/friendlywrt/.config ./artifact/config.seed
           cd artifact
-          zip ../R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}-ROM.zip *
+          zip ../R2S-${{ steps.set_name.outputs.username }}-${{ steps.set_time.outputs.build_time }}-ROM.zip *
 
       - name: Upload Artifact
         continue-on-error: true
         uses: actions/upload-artifact@master
         with:
-          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}-ROM
+          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.set_time.outputs.build_time }}-ROM
           path: ./artifact/
 
       - name: Create Release
@@ -267,7 +271,7 @@ jobs:
           allowUpdates: true
           artifacts: R2S-${{ steps.set_name.outputs.username }}-*-ROM.zip
           artifactContentType: application/zip
-          body: Built at ${{ steps.build.outputs.build_time }}
-          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.build.outputs.build_time }}
-          tag: ${{ steps.build.outputs.build_time }}
+          body: Built at ${{ steps.set_time.outputs.build_time }}
+          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.set_time.outputs.build_time }}
+          tag: ${{ steps.set_time.outputs.build_time }}
           token: ${{ secrets.sec_token }}
