@@ -13,6 +13,10 @@ jobs:
       enable-1512mhz: false
       ssh_debug: false
 
+    strategy:
+      matrix:
+        features: ['', '-Features']
+
     steps:
 
       - name: Setup timezone
@@ -136,8 +140,13 @@ jobs:
           cat configs/config_rk3328 | grep "TARGET" > base_config
           grep -f app_config -v -F -x ../config.seed >> base_config
           cat app_config >> base_config
-          sed -e '/^#.*$/d' -e '/^$/d' base_config > configs/config_rk3328
+          sed -e '/^#.*$/d' -e '/^$/d' base_config > friendlywrt-rk3328/configs/config_rk3328
           rm base_config app_config
+
+      - name: Generate addon config
+        if: matrix.features == '-Features'
+        run: |
+          sed -e '/^#.*$/d' -e '/^$/d' config.addon.seed > configs/config_rk3328
 
       - name: Update Target.mk
         run: |
@@ -260,13 +269,13 @@ jobs:
           mv friendlywrt-rk3328/out/*img* ./artifact/
           cp friendlywrt-rk3328/friendlywrt/.config ./artifact/config.seed
           cd artifact
-          zip ../R2S-${{ steps.set_name.outputs.username }}-${{ steps.set_time.outputs.build_time }}-ROM.zip *
+          zip ../R2S-${{ steps.set_name.outputs.username }}-${{ steps.set_time.outputs.build_time }}${{ matrix.features }}-ROM.zip *
 
       - name: Upload Artifact
         continue-on-error: true
         uses: actions/upload-artifact@master
         with:
-          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.set_time.outputs.build_time }}-ROM
+          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.set_time.outputs.build_time }}${{ matrix.features }}-ROM
           path: ./artifact/
 
       - name: Create Release
@@ -276,6 +285,6 @@ jobs:
           artifacts: R2S-${{ steps.set_name.outputs.username }}-*-ROM.zip
           artifactContentType: application/zip
           body: Built at ${{ steps.set_time.outputs.build_time }}
-          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.set_time.outputs.build_time }}
+          name: R2S-${{ steps.set_name.outputs.username }}-${{ steps.set_time.outputs.build_time }}${{ matrix.features }}
           tag: ${{ steps.set_time.outputs.build_time }}
           token: ${{ secrets.sec_token }}

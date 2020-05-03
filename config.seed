@@ -20,15 +20,6 @@ CONFIG_PACKAGE_luci-app-vlmcsd=y
 
 
 
-######################## Other Package ########################
-########################     Start     ########################
-# Which I won't use and may separate to other file soon.
-CONFIG_PACKAGE_luci-app-zerotier=y
-########################      End      ########################
-######################## Other Package ########################
-
-
-
 ####################### Remove Packages #######################
 #######################      Start      #######################
 # Use `# CONFIG_xxxxxxx is not set` for a week disable,
