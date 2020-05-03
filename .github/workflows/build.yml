@@ -288,6 +288,7 @@ jobs:
           artifacts: "R2S-${{ steps.set_name.outputs.username }}-*-ROM.zip,artifact/config.seed"
           artifactContentType: application/zip
           body: Built at ${{ steps.set_time.outputs.build_time }} for ${{ matrix.version }}
+          commit: ${{ github.sha }}
           name: R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}
           tag: ${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}
           token: ${{ secrets.sec_token }}
