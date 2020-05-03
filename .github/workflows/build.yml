@@ -149,7 +149,7 @@ jobs:
           chmod +x usr/bin/checkwan.sh
           sed -i '/exit/i\nohup /bin/sh /usr/bin/checkwan.sh  1>/dev/null 2>&1 &' etc/rc.local
 
-      - name: Add OPKG Feeds
+      - name: Add & Remove OPKG Feeds
         run: |
           cd friendlywrt-rk3328
           git clone -b src --depth 1 https://github.com/songchenwen/nanopi-r2s-opkg-feeds.git
@@ -157,6 +157,8 @@ jobs:
           cp nanopi-r2s-opkg-feeds/keys/* friendlywrt/package/base-files/files/etc/opkg/keys/
           rm -rf nanopi-r2s-opkg-feeds
           echo "grep -qF 'songchenwen.com' /etc/opkg/customfeeds.conf || echo 'src/gz songchenwen https://songchenwen.com/nanopi-r2s-opkg-feeds/packages' >> /etc/opkg/customfeeds.conf" >> friendlywrt/package/base-files/files/root/setup.sh
+          echo "sed -i '/songchenwen/d' /etc/opkg/distfeeds.conf" >> friendlywrt/package/base-files/files/root/setup.sh
+          echo "sed -i '/rk3328/d' /etc/opkg/distfeeds.conf" >> friendlywrt/package/base-files/files/root/setup.sh
 
       - name: Upgrade Argon theme
         run: |
