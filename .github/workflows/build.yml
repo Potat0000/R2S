@@ -285,7 +285,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: R2S-${{ steps.set_name.outputs.username }}-*-ROM.zip
+          artifacts: "R2S-${{ steps.set_name.outputs.username }}-*-ROM.zip,artifact/config.seed"
           artifactContentType: application/zip
           body: Built at ${{ steps.set_time.outputs.build_time }} for ${{ matrix.version }}
           name: R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}
