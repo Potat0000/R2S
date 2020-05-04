@@ -2,5 +2,4 @@
 # Which would only be built into WithFeatures version
 
 CONFIG_PACKAGE_luci-app-aria2=y
-CONFIG_PACKAGE_luci-app-dockerman
 CONFIG_PACKAGE_luci-app-zerotier=y
