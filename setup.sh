@@ -7,6 +7,7 @@ grep -qF 'songchenwen.com' /etc/opkg/customfeeds.conf || echo 'src/gz songchenwe
 sed -i '/scw/d' /etc/opkg/distfeeds.conf
 sed -i '/rk3328/d' /etc/opkg/distfeeds.conf
 
+sed -i "/update every = /c \\\tupdate every = 1\n\thistory = 86400" /etc/netdata/netdata.conf
 sed -i 's/charts.d = no/charts.d = yes/' /etc/netdata/netdata.conf
 cp /usr/lib/netdata/conf.d/charts.d.conf /etc/netdata/
 echo 'temp=yes' >> /etc/netdata/charts.d.conf
