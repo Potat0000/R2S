@@ -118,7 +118,7 @@ jobs:
       - name: Install Mods
         run: |
           cd friendlywrt-rk3328/friendlywrt
-          git apply ../../enable_autocore.diff
+          git apply ../../files/enable_autocore.diff
           sed -i '/redirect_https/d' package/network/services/uhttpd/files/uhttpd.config
           sed -i '/firewall\.user/d' package/lean/default-settings/files/zzz-default-settings
           sed -i '/.*cpuinfo | cut -c11- /c\\tMHz\=`echo "$(cat /sys/devices/system/cpu/cpu[04]/cpufreq/cpuinfo_cur_freq)/1000" | bc`' package/lean/autocore/files/sbin/cpuinfo
@@ -165,7 +165,7 @@ jobs:
 
       - name: Add setup.sh script
         run: |
-          cp setup.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/root
+          cp files/setup.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/root
           chmod +x friendlywrt-rk3328/friendlywrt/package/base-files/files/root/setup.sh
 
       - name: Add & Remove OPKG Feeds
@@ -187,13 +187,8 @@ jobs:
         run: |
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
           mkdir -p usr/lib/netdata/charts.d
-          mv ../../../../../temp.chart.sh usr/lib/netdata/charts.d/
-          mv ../../../../../freq.chart.sh usr/lib/netdata/charts.d/
-          echo "sed -i 's/charts.d = no/charts.d = yes/' /etc/netdata/netdata.conf" >> root/setup.sh
-          echo "cp /usr/lib/netdata/conf.d/charts.d.conf /etc/netdata/" >> root/setup.sh
-          echo "echo 'temp=yes' >> /etc/netdata/charts.d.conf" >> root/setup.sh
-          echo "echo 'freq=yes' >> /etc/netdata/charts.d.conf" >> root/setup.sh
-          echo "/etc/init.d/netdata restart" >> root/setup.sh
+          mv ../../../../../files/temp.chart.sh usr/lib/netdata/charts.d/
+          mv ../../../../../files/freq.chart.sh usr/lib/netdata/charts.d/
 
       - name: Add Luci-R2SFlasher
         run: |
