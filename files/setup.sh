@@ -5,6 +5,7 @@
 
 grep -qF 'songchenwen.com' /etc/opkg/customfeeds.conf || echo 'src/gz songchenwen https://songchenwen.com/nanopi-r2s-opkg-feeds/packages' >> /etc/opkg/customfeeds.conf
 sed -i '/scw/d' /etc/opkg/distfeeds.conf
+sed -i '/kenzo/d' /etc/opkg/distfeeds.conf
 sed -i '/rk3328/d' /etc/opkg/distfeeds.conf
 
 sed -i "/update every = /c \\\tupdate every = 1\n\thistory = 86400" /etc/netdata/netdata.conf

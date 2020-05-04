@@ -57,7 +57,7 @@ https://github.com/gyj1109/R2S/releases
 
 * [songchenwen/nanopi-r2s](https://github.com/songchenwen/nanopi-r2s)
 * [fanck0605/friendlywrt-kernel](https://github.com/fanck0605/friendlywrt-kernel)
-* [songchenwen/openwrt-package](https://github.com/songchenwen/openwrt-package)
+* [kenzok8/openwrt-package](https://github.com/kenzok8/openwrt-packages)
 * [klever1988/nanopi-openwrt](https://github.com/klever1988/nanopi-openwrt)
 * [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede)
 * [friendlyarm/friendlywrt](https://github.com/friendlyarm/friendlywrt)
