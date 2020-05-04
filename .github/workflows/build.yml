@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      enable-1512mhz: false
+      enable-1512mhz: true
       ssh_debug: false
 
     strategy:
