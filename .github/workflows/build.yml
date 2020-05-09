@@ -132,7 +132,7 @@ jobs:
           cp files/setup.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/root
           chmod +x friendlywrt-rk3328/friendlywrt/package/base-files/files/root/setup.sh
 
-      - name: Add & Remove OPKG Feeds
+      - name: Add OPKG Feeds
         run: |
           cd friendlywrt-rk3328
           git clone -b src --depth 1 https://github.com/songchenwen/nanopi-r2s-opkg-feeds.git
@@ -154,12 +154,6 @@ jobs:
           mv ../../../../../files/temp.chart.sh usr/lib/netdata/charts.d/
           mv ../../../../../files/freq.chart.sh usr/lib/netdata/charts.d/
 
-      - name: Add Luci-R2SFlasher
-        run: |
-          git clone https://github.com/songchenwen/nanopi-r2s
-          mv nanopi-r2s/luci-app-r2sflasher friendlywrt-rk3328/friendlywrt/package
-          rm -rf nanopi-r2s
-
       - name: Add SSRP
         run: |
           sed -i 's/"admin", "services", "shadowsocksr"/"admin", "vpn", "shadowsocksr"/g' `grep '"admin", "services", "shadowsocksr"' -rl friendlywrt-rk3328/friendlywrt/package/feeds/kenzo/luci-app-ssr-plus`
@@ -176,6 +170,12 @@ jobs:
         run: |
           cd friendlywrt-rk3328/friendlywrt/package
           git clone https://github.com/rufengsuixing/luci-app-adguardhome.git
+
+      - name: Add Luci-R2SFlasher
+        run: |
+          git clone https://github.com/songchenwen/nanopi-r2s
+          mv nanopi-r2s/luci-app-r2sflasher friendlywrt-rk3328/friendlywrt/package
+          rm -rf nanopi-r2s
 
       - name: Add UPX
         run: |
