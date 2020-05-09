@@ -56,26 +56,14 @@ jobs:
         run: |
           mkdir friendlywrt-rk3328
           cd friendlywrt-rk3328
-          repo init -u https://github.com/friendlyarm/friendlywrt_manifests -b master-v19.07.1 -m rk3328.xml --repo-url=https://github.com/friendlyarm/repo --no-clone-bundle --depth=1
-          repo sync -c --no-tags --no-clone-bundle -j8
-          cd friendlywrt/ && git fetch --unshallow
+          repo init -u https://github.com/fanck0605/friendlywrt_mainfests -b openwrt-lean -m rk3328.xml --repo-url=https://github.com/friendlyarm/repo --no-clone-bundle
+          repo sync -c --no-clone-bundle -j8
 
-      - name: Change Feeds to Lean
-        run: |
-          cd friendlywrt-rk3328
-          git clone https://github.com/coolsnowwolf/lede
-          cd friendlywrt
-          cp -r ../lede/package/lean package/
-          sed -i 's/^src-git luci.*/src-git luci https:\/\/github.com\/coolsnowwolf\/luci/' feeds.conf.default
-          sed -i 's/^src-git packages.*/src-git packages https:\/\/github.com\/coolsnowwolf\/packages/' feeds.conf.default
-
-      - name: Add Packages to Lean
+      - name: Add Packages
         run: |
           echo "src-git kenzo https://github.com/kenzok8/openwrt-packages" >> friendlywrt-rk3328/friendlywrt/feeds.conf.default
           echo "src-git kenzo_small https://github.com/kenzok8/small" >> friendlywrt-rk3328/friendlywrt/feeds.conf.default
           cd friendlywrt-rk3328/friendlywrt
-          rm -rf package/network/config/firewall
-          cp -r ../lede/package/network/config/firewall package/network/config/
 
       - name: Install Openwrt Libs
         run: |
@@ -90,22 +78,6 @@ jobs:
           cd friendlywrt-rk3328/friendlywrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-
-      - name: Install Chuck's Kernel
-        run: |
-          cd friendlywrt-rk3328
-          rm -rf kernel
-          git clone --depth=1 https://github.com/fanck0605/friendlywrt-kernel.git kernel
-          cd openwrt
-          ./scripts/patch-kernel.sh ../kernel target/linux/generic/backport-5.4
-          ./scripts/patch-kernel.sh ../kernel target/linux/generic/pending-5.4
-          ./scripts/patch-kernel.sh ../kernel target/linux/generic/hack-5.4
-          ./scripts/patch-kernel.sh ../kernel target/linux/octeontx/patches-5.4 || true
-          cp -a ./target/linux/generic/files/* ../kernel/
-          cd ../kernel
-          wget -O net/netfilter/xt_FULLCONENAT.c https://raw.githubusercontent.com/Chion82/netfilter-full-cone-nat/master/xt_FULLCONENAT.c
-          wget -O ../fullcone_nat.patch https://raw.githubusercontent.com/fanck0605/nanopi-r2s/lean/patches/001-kernel-add-full_cone_nat.patch
-          git apply ../fullcone_nat.patch
 
       - name: Install Mods
         run: |
@@ -217,7 +189,6 @@ jobs:
       - name: Clean src
         run: |
           cd friendlywrt-rk3328
-          rm -rf lede
           rm -rf openwrt
 
       - name: Set Build Time
