@@ -3,7 +3,7 @@
 # fix netdata issue
 [ -d /usr/share/netdata/web ] && chown -R root:root /usr/share/netdata/web
 
-grep -qF 'songchenwen.com' /etc/opkg/customfeeds.conf || echo 'src/gz songchenwen https://songchenwen.com/nanopi-r2s-opkg-feeds/packages' >> /etc/opkg/customfeeds.conf
+grep -qF 'songchenwen.com' /etc/opkg/customfeeds.conf || echo 'src/gz songchenwen https://nanopi-r2s-opkg-feeds.songchenwen.com/packages' >> /etc/opkg/customfeeds.conf
 sed -i '/scw/d' /etc/opkg/distfeeds.conf
 sed -i '/kenzo/d' /etc/opkg/distfeeds.conf
 sed -i '/rk3328/d' /etc/opkg/distfeeds.conf
