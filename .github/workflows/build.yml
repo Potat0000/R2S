@@ -83,12 +83,6 @@ jobs:
           rm -rf friendlywrt/package/libs
           cp -r openwrt/package/libs friendlywrt/package/
 
-      - name: Update Feeds
-        run: |
-          cd friendlywrt-rk3328/friendlywrt
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
       - name: Install Chuck's Kernel
         run: |
           cd friendlywrt-rk3328
@@ -209,10 +203,22 @@ jobs:
           mv nanopi-r2s/luci-app-r2sflasher friendlywrt-rk3328/friendlywrt/package
           rm -rf nanopi-r2s
 
+      - name: Add SmartDNS
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/package
+          git clone https://github.com/pymumu/openwrt-smartdns.git smartdns
+          git clone https://github.com/pymumu/luci-app-smartdns.git
+
       - name: Add UPX
         run: |
           mkdir -p friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/
           ln -s /usr/bin/upx-ucl friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/upx
+
+      - name: Update Feeds
+        run: |
+          cd friendlywrt-rk3328/friendlywrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
 
       - name: Setup Debug Session
         if: env.ssh_debug == 'true'
