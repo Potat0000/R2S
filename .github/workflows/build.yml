@@ -73,7 +73,7 @@ jobs:
 
       - name: Add Packages to Lean
         run: |
-          echo "src-git scw https://github.com/songchenwen/openwrt-package" >> feeds.conf.default
+          echo "src-git scw https://github.com/songchenwen/openwrt-package" >> friendlywrt-rk3328/friendlywrt/feeds.conf.default
 
       - name: Install Openwrt Libs
         run: |
