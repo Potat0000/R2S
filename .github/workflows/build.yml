@@ -239,7 +239,7 @@ jobs:
 
       - name: Build
         run: |
-          sed -i '/Firmware Version/a\\t\t\tBuilt by ${{ steps.set_name.outputs.username }} @ ${{ steps.set_time.outputs.build_time }} * ${{ matrix.version }} \/' friendlywrt-rk3328/friendlywrt/package/lean/autocore/files/index.htm
+          sed -i '/Firmware Version/a\\t\t\tBuilt by ${{ steps.set_name.outputs.username }} @ ${{ steps.set_time.outputs.build_time }} (${{ matrix.version }}) \/' friendlywrt-rk3328/friendlywrt/package/lean/autocore/files/index.htm
           cd friendlywrt-rk3328
           ./build.sh nanopi_r2s.mk
 
