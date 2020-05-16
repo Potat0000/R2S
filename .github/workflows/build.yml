@@ -99,6 +99,54 @@ jobs:
           wget -O ../fullcone_nat.patch https://raw.githubusercontent.com/fanck0605/nanopi-r2s/lean/patches/001-kernel-add-full_cone_nat.patch
           git apply ../fullcone_nat.patch
 
+      - name: Upgrade Argon theme
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/package/lean
+          rm -rf luci-theme-argon
+          git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+          sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' default-settings/files/zzz-default-settings
+
+      - name: Add SSRP
+        run: |
+          git clone https://github.com/fw876/helloworld.git
+          sed -i 's/"admin", "services", "shadowsocksr"/"admin", "vpn", "shadowsocksr"/g' `grep '"admin", "services", "shadowsocksr"' -rl helloworld/luci-app-ssr-plus`
+          mv helloworld/luci-app-ssr-plus friendlywrt-rk3328/friendlywrt/package
+          rm -rf helloworld
+
+      - name: Add OpenClash
+        run: |
+          git clone https://github.com/vernesong/OpenClash.git
+          sed -i 's/"admin", "services", "openclash"/"admin", "vpn", "openclash"/g' `grep '"admin", "services", "openclash"' -rl OpenClash/luci-app-openclash`
+          mv OpenClash/luci-app-openclash friendlywrt-rk3328/friendlywrt/package
+          rm -rf OpenClash
+          cd friendlywrt-rk3328/friendlywrt/package/base-files/files
+          mkdir -p etc/openclash && cd etc/openclash
+          curl -L https://github.com/vernesong/OpenClash/releases/download/Clash/clash-linux-armv8.tar.gz | tar zxf -
+          chmod +x clash
+
+      - name: Add AdGuard Home
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/package
+          git clone https://github.com/rufengsuixing/luci-app-adguardhome.git
+
+      - name: Add Luci-R2SFlasher
+        run: |
+          git clone https://github.com/songchenwen/nanopi-r2s
+          mv nanopi-r2s/luci-app-r2sflasher friendlywrt-rk3328/friendlywrt/package
+          rm -rf nanopi-r2s
+
+      - name: Add SmartDNS
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/package
+          git clone https://github.com/pymumu/openwrt-smartdns.git smartdns
+          git clone https://github.com/pymumu/luci-app-smartdns.git
+
+      - name: Update Feeds
+        run: |
+          cd friendlywrt-rk3328/friendlywrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
       - name: Install Mods
         run: |
           cd friendlywrt-rk3328/friendlywrt
@@ -160,13 +208,6 @@ jobs:
           cp nanopi-r2s-opkg-feeds/keys/* friendlywrt/package/base-files/files/etc/opkg/keys/
           rm -rf nanopi-r2s-opkg-feeds
 
-      - name: Upgrade Argon theme
-        run: |
-          cd friendlywrt-rk3328/friendlywrt/package/lean
-          rm -rf luci-theme-argon
-          git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-          sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' default-settings/files/zzz-default-settings
-
       - name: Add Temperature & Frequency to Netdata
         run: |
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
@@ -174,51 +215,10 @@ jobs:
           mv ../../../../../files/temp.chart.sh usr/lib/netdata/charts.d/
           mv ../../../../../files/freq.chart.sh usr/lib/netdata/charts.d/
 
-      - name: Add SSRP
-        run: |
-          git clone https://github.com/fw876/helloworld.git
-          sed -i 's/"admin", "services", "shadowsocksr"/"admin", "vpn", "shadowsocksr"/g' `grep '"admin", "services", "shadowsocksr"' -rl helloworld/luci-app-ssr-plus`
-          mv helloworld/luci-app-ssr-plus friendlywrt-rk3328/friendlywrt/package
-          rm -rf helloworld
-
-      - name: Add OpenClash
-        run: |
-          git clone https://github.com/vernesong/OpenClash.git
-          sed -i 's/"admin", "services", "openclash"/"admin", "vpn", "openclash"/g' `grep '"admin", "services", "openclash"' -rl OpenClash/luci-app-openclash`
-          mv OpenClash/luci-app-openclash friendlywrt-rk3328/friendlywrt/package
-          rm -rf OpenClash
-          cd friendlywrt-rk3328/friendlywrt/package/base-files/files
-          mkdir -p etc/openclash && cd etc/openclash
-          curl -L https://github.com/vernesong/OpenClash/releases/download/Clash/clash-linux-armv8.tar.gz | tar zxf -
-          chmod +x clash
-
-      - name: Add AdGuard Home
-        run: |
-          cd friendlywrt-rk3328/friendlywrt/package
-          git clone https://github.com/rufengsuixing/luci-app-adguardhome.git
-
-      - name: Add Luci-R2SFlasher
-        run: |
-          git clone https://github.com/songchenwen/nanopi-r2s
-          mv nanopi-r2s/luci-app-r2sflasher friendlywrt-rk3328/friendlywrt/package
-          rm -rf nanopi-r2s
-
-      - name: Add SmartDNS
-        run: |
-          cd friendlywrt-rk3328/friendlywrt/package
-          git clone https://github.com/pymumu/openwrt-smartdns.git smartdns
-          git clone https://github.com/pymumu/luci-app-smartdns.git
-
       - name: Add UPX
         run: |
           mkdir -p friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/
           ln -s /usr/bin/upx-ucl friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/upx
-
-      - name: Update Feeds
-        run: |
-          cd friendlywrt-rk3328/friendlywrt
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
 
       - name: Setup Debug Session
         if: env.ssh_debug == 'true'
