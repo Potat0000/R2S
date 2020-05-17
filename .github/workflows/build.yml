@@ -139,7 +139,7 @@ jobs:
         run: |
           cd friendlywrt-rk3328/friendlywrt/package
           git clone https://github.com/pymumu/openwrt-smartdns.git smartdns
-          git clone https://github.com/pymumu/luci-app-smartdns.git
+          git clone -b lede https://github.com/pymumu/luci-app-smartdns.git
 
       - name: Update Feeds
         run: |
