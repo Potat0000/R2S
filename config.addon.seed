@@ -3,3 +3,9 @@
 
 CONFIG_PACKAGE_luci-app-aria2=y
 CONFIG_PACKAGE_luci-app-zerotier=y
+
+CONFIG_PACKAGE_docker-ce=y
+CONFIG_PACKAGE_luci-app-dockerman=y
+CONFIG_PACKAGE_luci-lib-docker=y
+CONFIG_PACKAGE_luci-lib-jsonc=y
+CONFIG_PACKAGE_ttyd=y
