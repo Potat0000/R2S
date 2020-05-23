@@ -19,14 +19,14 @@ https://github.com/gyj1109/R2S/releases
 
 #### 刷入帮助
 
-* 使用 [balenaEtcher](https://www.balena.io/etcher/) 刷写时需解压出`.img`文件后刷入
+* 使用 [balenaEtcher](https://www.balena.io/etcher/) 或直接使用系统升级
 
-* 使用 Luci-R2SFlasher 刷写时直接上传`zip`包
+* 刷写时需解压出`.img`文件后刷入
 
 ### 管理后台
 
-- 地址：192.168.2.1
-- 密码：password
+- 地址：192.168.1.1
+- 密码：*无*
 
 ### Fork方法
 
@@ -55,9 +55,6 @@ https://github.com/gyj1109/R2S/releases
 
 ### 感谢
 
-* [songchenwen/nanopi-r2s](https://github.com/songchenwen/nanopi-r2s)
-* [fanck0605/friendlywrt-kernel](https://github.com/fanck0605/friendlywrt-kernel)
-* [songchenwen/openwrt-package](https://github.com/songchenwen/openwrt-package)
-* [klever1988/nanopi-openwrt](https://github.com/klever1988/nanopi-openwrt)
+* [QiuSimons/R2S-OpenWrt](https://github.com/QiuSimons/R2S-OpenWrt)
 * [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede)
-* [friendlyarm/friendlywrt](https://github.com/friendlyarm/friendlywrt)
+* [openwrt/openwrt](https://git.openwrt.org/openwrt/openwrt.git)
