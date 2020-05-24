@@ -83,11 +83,6 @@ jobs:
           cd openwrt
           /bin/bash 04_remove_upx.sh
 
-      - name: Add Argon Theme
-        run: |
-          cd openwrt/package
-          git clone https://github.com/jerrykuku/luci-theme-argon.git
-
       - name: Generate config
         run: |
           sed -e '/^##.*$/d' -e '/^$/d' config.seed > openwrt/.config
