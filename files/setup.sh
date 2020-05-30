@@ -14,3 +14,5 @@ cp /usr/lib/netdata/conf.d/charts.d.conf /etc/netdata/
 echo 'temp=yes' >> /etc/netdata/charts.d.conf
 echo 'freq=yes' >> /etc/netdata/charts.d.conf
 /etc/init.d/netdata restart
+
+/usr/bin/check_net
