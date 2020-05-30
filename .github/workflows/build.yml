@@ -96,7 +96,7 @@ jobs:
           cp -a ./target/linux/generic/files/* ../kernel/
           cd ../kernel
           wget -O net/netfilter/xt_FULLCONENAT.c https://raw.githubusercontent.com/Chion82/netfilter-full-cone-nat/master/xt_FULLCONENAT.c
-          wget -O ../fullcone_nat.patch https://raw.githubusercontent.com/fanck0605/nanopi-r2s/lean/patches/001-kernel-add-full_cone_nat.patch
+          wget -O ../fullcone_nat.patch https://raw.githubusercontent.com/fanck0605/nanopi-r2s/openwrt-lean/patches/001-kernel-add-full_cone_nat.patch
           git apply ../fullcone_nat.patch
 
       - name: Upgrade Argon theme
@@ -115,7 +115,7 @@ jobs:
 
       - name: Add OpenClash
         run: |
-          git clone https://github.com/vernesong/OpenClash.git
+          git clone -b master https://github.com/vernesong/OpenClash.git
           mv OpenClash/luci-app-openclash friendlywrt-rk3328/friendlywrt/package
           rm -rf OpenClash
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
@@ -190,10 +190,10 @@ jobs:
           git clone https://github.com/lsl330/R2S-SCRIPTS
           mv R2S-SCRIPTS/checkwan.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/usr/bin
           rm -rf R2S-SCRIPTS
-          cp files/check_net.sh friendlywrt/package/base-files/files/usr/bin/check_net
+          cp files/check_net.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/usr/bin/check_net
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
           chmod +x usr/bin/checkwan.sh
-          chmod +x usr/bin/checknet
+          chmod +x usr/bin/check_net
           sed -i '/exit/i\nohup /bin/sh /usr/bin/checkwan.sh  1>/dev/null 2>&1 &' etc/rc.local
 
       - name: Add setup.sh script
