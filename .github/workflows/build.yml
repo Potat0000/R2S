@@ -116,7 +116,6 @@ jobs:
       - name: Add OpenClash
         run: |
           git clone https://github.com/vernesong/OpenClash.git
-          sed -i 's/"admin", "services", "openclash"/"admin", "vpn", "openclash"/g' `grep '"admin", "services", "openclash"' -rl OpenClash/luci-app-openclash`
           mv OpenClash/luci-app-openclash friendlywrt-rk3328/friendlywrt/package
           rm -rf OpenClash
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
