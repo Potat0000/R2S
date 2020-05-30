@@ -3,7 +3,7 @@ name: R2S OpenWrt
 on:
   push:
     branches:
-      - master
+      - openwrt
 
 jobs:
   build:
