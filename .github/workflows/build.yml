@@ -126,12 +126,13 @@ jobs:
           rm -rf artifact
           mkdir artifact
           cd openwrt/bin/targets/rockchip/armv8
-          #rm -rf `ls | grep -v "squashfs"`
+          rm -rf *ext4-sysupgrade.img.gz
+          rf -rf packages
           gzip -d *.gz
           gzip *.img
           mv * ../../../../../artifact
           cd ../../../../../artifact
-          zip ../R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}-ROM.zip * .*
+          zip ../R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}-ROM.zip *
 
       - name: Upload Artifact
         continue-on-error: true
@@ -144,7 +145,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "R2S-${{ steps.set_name.outputs.username }}-*-ROM.zip,artifact/config.seed"
+          artifacts: R2S-${{ steps.set_name.outputs.username }}-*-ROM.zip
           body: Built at ${{ steps.set_time.outputs.build_time }} for ${{ matrix.version }}
           commit: ${{ github.sha }}
           name: R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}
