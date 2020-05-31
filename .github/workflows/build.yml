@@ -27,7 +27,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
         with:
-          ref: master
+          ref: openwrt
 
       - name: Set Username
         id: set_name
@@ -127,7 +127,7 @@ jobs:
           mkdir artifact
           cd openwrt/bin/targets/rockchip/armv8
           rm -rf *ext4-sysupgrade.img.gz
-          rf -rf packages
+          rm -rf packages
           gzip -d *.gz
           gzip *.img
           mv * ../../../../../artifact
