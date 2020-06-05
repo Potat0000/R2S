@@ -128,8 +128,8 @@ jobs:
           cd openwrt/bin/targets/rockchip/armv8
           rm -rf *ext4-sysupgrade.img.gz
           rm -rf packages
-          gzip -d -q *.gz
-          gzip -q *.img
+          gzip -d *.gz || true
+          gzip *.img
           mv * ../../../../../artifact
           cd ../../../../../artifact
           zip ../R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}-ROM.zip *
