@@ -3,43 +3,43 @@ diff -rNEZbwBdu3 a/package/boot/arm-trusted-firmware-rockchip/Makefile b/package
 +++ b/package/boot/arm-trusted-firmware-rockchip/Makefile	2020-05-21 22:10:35.000000000 +0800
 @@ -8,12 +8,12 @@
  include $(TOPDIR)/rules.mk
- 
+
  PKG_NAME:=arm-trusted-firmware-rockchip
 -PKG_VERSION:=2.3-rc0
 +PKG_VERSION:=2.3
  PKG_RELEASE:=1
- 
+
  PKG_SOURCE:=atf-v$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=https://github.com/atf-builds/atf/releases/download/v$(PKG_VERSION)/atf-v$(PKG_VERSION).tar.gz?
 -PKG_HASH:=8d0a2bd18adf54f9cf6fe923d10f21c1d21f42a15067757333ff8989b25f100a
 +PKG_HASH:=bf352298743aed594cf2958dd588e06ab6713fc514bb6f809bf55a85a87134c1
- 
+
  PKG_LICENSE:=BSD-3-Clause
  PKG_LICENSE_FILES:=license.md
 @@ -40,7 +40,7 @@
- 
+
  define Build/InstallDev
  	$(INSTALL_DIR) -p $(STAGING_DIR_IMAGE)
 -	$(CP) $(PKG_BUILD_DIR)/rk3399_bl31.elf $(STAGING_DIR_IMAGE)/bl31.elf
 +	$(CP) $(PKG_BUILD_DIR)/rk*.elf $(STAGING_DIR_IMAGE)/
  endef
- 
+
  define Package/arm-trusted-firmware-rockchip/install
 diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/Makefile b/package/boot/uboot-rockchip/Makefile
 --- a/package/boot/uboot-rockchip/Makefile	2020-05-11 22:49:04.000000000 +0800
 +++ b/package/boot/uboot-rockchip/Makefile	2020-05-21 22:10:35.000000000 +0800
 @@ -13,6 +13,7 @@
- 
+
  include $(INCLUDE_DIR)/u-boot.mk
  include $(INCLUDE_DIR)/package.mk
 +PKG_BUILD_DEPENDS:=arm-trusted-firmware-rockchip
- 
+
  define U-Boot/Default
    BUILD_TARGET:=rockchip
 @@ -20,27 +21,43 @@
    HIDDEN:=1
  endef
- 
+
 +define U-Boot/nanopi-r2-rk3328
 +  BUILD_SUBTARGET:=armv8
 +  NAME:=NanoPi R2S
@@ -65,19 +65,19 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/Makefile b/package/boot/uboot-roc
 +    pine64_rock64
 +  BL31=$(STAGING_DIR_IMAGE)/rk3328_bl31.elf
  endef
- 
+
  UBOOT_TARGETS := \
 -  rockpro64-rk3399
 +  nanopi-r2-rk3328 \
 +  rockpro64-rk3399 \
 +  rock64-rk3328
- 
+
  UBOOT_CONFIGURE_VARS += USE_PRIVATE_LIBGCC=yes
- 
+
  UBOOT_MAKE_FLAGS += \
 -  BL31=$(STAGING_DIR_IMAGE)/bl31.elf
 +  BL31=$(BL31)
- 
+
  define Build/Configure
 -	$(SED) s/subdir.*pylibfdt//g $(PKG_BUILD_DIR)/scripts/dtc/Makefile
 +	 echo CONFIG_CMD_SETEXPR=y >> $(PKG_BUILD_DIR)/configs/$(UBOOT_CONFIG)_defconfig
@@ -95,12 +95,12 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/add-board-nanopi-r2.patch
 +--- a/arch/arm/dts/Makefile
 ++++ b/arch/arm/dts/Makefile
 +@@ -104,6 +104,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3308) += \
-+ 
++
 + dtb-$(CONFIG_ROCKCHIP_RK3328) += \
 + 	rk3328-evb.dtb \
 ++	rk3328-nanopi-r2-rev00.dtb \
 + 	rk3328-rock64.dtb
-+ 
++
 + dtb-$(CONFIG_ROCKCHIP_RK3368) += \
 +diff --git a/arch/arm/dts/rk3328-nanopi-r2-common.dtsi b/arch/arm/dts/rk3328-nanopi-r2-common.dtsi
 +new file mode 100644
@@ -1039,7 +1039,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/add-board-nanopi-r2.patch
 +@@ -1386,7 +1386,7 @@
 + 			};
 + 		};
-+ 
++
 +-		gmac2phy {
 ++		gmac2phy: gmac2phy {
 + 			fephyled_speed100: fephyled-speed100 {
@@ -1098,7 +1098,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch
 + #include <linux/delay.h>
 ++#include <malloc.h>
 + #include <misc.h>
-+ 
++
 ++#define RK3328_INT_STATUS	0x0018
 ++#define RK3328_DOUT		0x0020
 ++#define RK3328_AUTO_CTRL	0x0024
@@ -1114,7 +1114,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch
 +@@ -27,6 +37,9 @@
 + #define RK3399_STROBE           BIT(1)
 + #define RK3399_CSB              BIT(0)
-+ 
++
 ++typedef int (*EFUSE_READ)(struct udevice *dev, int offset, void *buf,
 ++			  int size);
 ++
@@ -1130,12 +1130,12 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch
 ++	u32 dout2;     /* 0x20 */
 ++	u32 auto_ctrl; /* 0x24 */
 + };
-+ 
++
 + struct rockchip_efuse_platdata {
 +@@ -83,6 +100,57 @@ U_BOOT_CMD(
 + );
 + #endif
-+ 
++
 ++static int rockchip_rk3328_efuse_read(struct udevice *dev, int offset,
 ++				      void *buf, int size)
 ++{
@@ -1203,11 +1203,11 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch
 ++
 ++	return (*efuse_read)(dev, offset, buf, size);
 + }
-+ 
++
 + static const struct misc_ops rockchip_efuse_ops = {
 +@@ -146,7 +220,14 @@ static int rockchip_efuse_ofdata_to_platdata(struct udevice *dev)
 + }
-+ 
++
 + static const struct udevice_id rockchip_efuse_ids[] = {
 +-	{ .compatible = "rockchip,rk3399-efuse" },
 ++	{
@@ -1220,7 +1220,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch
 ++	},
 + 	{}
 + };
-+ 
++
 +diff --git a/include/configs/rk3328_common.h b/include/configs/rk3328_common.h
 +index 407e5d29..0552e476 100644
 +--- a/include/configs/rk3328_common.h
@@ -1228,13 +1228,13 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch
 +@@ -23,6 +23,10 @@
 + #define CONFIG_SPL_BSS_START_ADDR	0x2000000
 + #define CONFIG_SPL_BSS_MAX_SIZE		0x2000
-+ 
++
 ++#define CONFIG_MISC 1
 ++#define CONFIG_MISC_INIT_R 1
 ++#define CONFIG_ROCKCHIP_EFUSE 1
 ++
 + #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
-+ 
++
 + /* FAT sd card locations. */
 +diff --git a/arch/arm/dts/rk3328.dtsi b/arch/arm/dts/rk3328.dtsi
 +index eac257b0..3e04a823 100644
@@ -1243,7 +1243,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch
 +@@ -337,6 +337,31 @@
 + 		};
 + 	};
-+ 
++
 ++	efuse: efuse@ff260000 {
 ++		compatible = "rockchip,rk3328-efuse";
 ++		reg = <0x0 0xff260000 0x0 0x50>;
@@ -1287,7 +1287,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/sdmmc-force-fifo-mode-in-
 +--- a/drivers/mmc/rockchip_dw_mmc.c
 ++++ b/drivers/mmc/rockchip_dw_mmc.c
 +@@ -70,7 +70,11 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
-+ 
++
 + 	if (priv->fifo_depth < 0)
 + 		return -EINVAL;
 ++#ifdef CONFIG_SPL_BUILD
@@ -1295,7 +1295,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/sdmmc-force-fifo-mode-in-
 ++#else
 + 	priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
 ++#endif
-+ 
++
 + 	/*
 + 	 * 'clock-freq-min-max' is deprecated
 diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Avoid-using-libfdt-with-of-platdata.diff b/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Avoid-using-libfdt-with-of-platdata.diff
@@ -1309,7 +1309,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Av
 +@@ -669,6 +669,10 @@ static int rk3328_gmac2io_set_parent(struct clk *clk, struct clk *parent)
 + 		return 0;
 + 	}
-+ 
++
 ++	/* FIXME: Device tree should be read in ofdata_to_platdata() */
 ++	if (CONFIG_IS_ENABLED(OF_PLATDATA))
 ++		return -EDEADLK;
@@ -1320,7 +1320,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Av
 +@@ -706,6 +710,10 @@ static int rk3328_gmac2io_ext_set_parent(struct clk *clk, struct clk *parent)
 + 		return 0;
 + 	}
-+ 
++
 ++	/* FIXME: Device tree should be read in ofdata_to_platdata() */
 ++	if (CONFIG_IS_ENABLED(OF_PLATDATA))
 ++		return -EDEADLK;
@@ -1329,17 +1329,17 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Av
 + 	 * Otherwise, we need to check the clock-output-names of the
 + 	 * requested parent to see if the requested id is "gmac_clkin".
 +@@ -762,9 +770,11 @@ static int rk3328_clk_probe(struct udevice *dev)
-+ 
++
 + static int rk3328_clk_ofdata_to_platdata(struct udevice *dev)
 + {
 +-	struct rk3328_clk_priv *priv = dev_get_priv(dev);
 ++	if (!CONFIG_IS_ENABLED(OF_PLATDATA)) {
 ++		struct rk3328_clk_priv *priv = dev_get_priv(dev);
-+ 
++
 +-	priv->cru = dev_read_addr_ptr(dev);
 ++		priv->cru = dev_read_addr_ptr(dev);
 ++	}
-+ 
++
 + 	return 0;
 + }
 +diff --git a/drivers/pinctrl/rockchip/pinctrl-rockchip-core.c b/drivers/pinctrl/rockchip/pinctrl-rockchip-core.c
@@ -1349,7 +1349,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Av
 +@@ -383,8 +383,8 @@ static int rockchip_pinconf_prop_name_to_param(const char *property,
 + 	return -EPERM;
 + }
-+ 
++
 +-static int rockchip_pinctrl_set_state(struct udevice *dev,
 +-				      struct udevice *config)
 ++static int __maybe_unused rockchip_pinctrl_set_state(struct udevice *dev,
@@ -1359,14 +1359,14 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Av
 + 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
 +@@ -474,7 +474,9 @@ static int rockchip_pinctrl_set_state(struct udevice *dev,
 + }
-+ 
++
 + const struct pinctrl_ops rockchip_pinctrl_ops = {
 ++#if !CONFIG_IS_ENABLED(PLATDATA)
 + 	.set_state			= rockchip_pinctrl_set_state,
 ++#endif
 + 	.get_gpio_mux			= rockchip_pinctrl_get_gpio_mux,
 + };
-+ 
++
 diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-2-5-omap-mmc-Avoid-using-libfdt-with-of-platdata.diff b/package/boot/uboot-rockchip/patches/U-Boot-v4-2-5-omap-mmc-Avoid-using-libfdt-with-of-platdata.diff
 --- a/package/boot/uboot-rockchip/patches/U-Boot-v4-2-5-omap-mmc-Avoid-using-libfdt-with-of-platdata.diff	1970-01-01 08:00:00.000000000 +0800
 +++ b/package/boot/uboot-rockchip/patches/U-Boot-v4-2-5-omap-mmc-Avoid-using-libfdt-with-of-platdata.diff	2020-05-21 22:10:35.000000000 +0800
@@ -1378,7 +1378,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-2-5-omap-mmc-Av
 +@@ -507,6 +507,12 @@ static int davinci_mmc_probe(struct udevice *dev)
 + 		priv->version = data->version;
 + 	}
-+ 
++
 ++	/* FIXME: Cannot read from device tree with of-platdata */
 ++	if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
 ++		printf("Please fix this driver to use of-platdata");
@@ -1387,7 +1387,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-2-5-omap-mmc-Av
 ++
 + 	priv->reg_base = (struct davinci_mmc_regs *)dev_read_addr(dev);
 + 	priv->input_clk = clk_get(DAVINCI_MMCSD_CLKID);
-+ 
++
 diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-3-5-rockchip-pinctrl-Disable-full-pinctrl-for-SPL.diff b/package/boot/uboot-rockchip/patches/U-Boot-v4-3-5-rockchip-pinctrl-Disable-full-pinctrl-for-SPL.diff
 --- a/package/boot/uboot-rockchip/patches/U-Boot-v4-3-5-rockchip-pinctrl-Disable-full-pinctrl-for-SPL.diff	1970-01-01 08:00:00.000000000 +0800
 +++ b/package/boot/uboot-rockchip/patches/U-Boot-v4-3-5-rockchip-pinctrl-Disable-full-pinctrl-for-SPL.diff	2020-05-21 22:10:35.000000000 +0800
@@ -1456,7 +1456,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-4-5-dm-core-Don
 ++ifdef CONFIG_$(SPL_TPL_)OF_LIBFDT
 ++obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += of_extra.o ofnode.o read_extra.o
 ++endif
-+ 
++
 + ccflags-$(CONFIG_DM_DEBUG) += -DDEBUG
 +diff --git a/include/dm/read.h b/include/dm/read.h
 +index d37fcb504d..4f02d07d00 100644
@@ -1465,7 +1465,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-4-5-dm-core-Don
 +@@ -43,8 +43,7 @@ static inline bool dev_of_valid(struct udevice *dev)
 + 	return ofnode_valid(dev_ofnode(dev));
 + }
-+ 
++
 +-#ifndef CONFIG_DM_DEV_READ_INLINE
 +-
 ++#if !defined(CONFIG_DM_DEV_READ_INLINE) || CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -1477,13 +1477,13 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-4-5-dm-core-Don
 +--- a/net/eth-uclass.c
 ++++ b/net/eth-uclass.c
 +@@ -462,7 +462,7 @@ static int eth_pre_unbind(struct udevice *dev)
-+ 
++
 + static bool eth_dev_get_mac_address(struct udevice *dev, u8 mac[ARP_HLEN])
 + {
 +-#if IS_ENABLED(CONFIG_OF_CONTROL)
 ++#if CONFIG_IS_ENABLED(OF_CONTROL)
 + 	const uint8_t *p;
-+ 
++
 + 	p = dev_read_u8_array_ptr(dev, "mac-address", ARP_HLEN);
 diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-5-5-spl-Allow-SPL-TPL-to-use-of-platdata-without-libfdt.diff b/package/boot/uboot-rockchip/patches/U-Boot-v4-5-5-spl-Allow-SPL-TPL-to-use-of-platdata-without-libfdt.diff
 --- a/package/boot/uboot-rockchip/patches/U-Boot-v4-5-5-spl-Allow-SPL-TPL-to-use-of-platdata-without-libfdt.diff	1970-01-01 08:00:00.000000000 +0800
@@ -1494,7 +1494,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-5-5-spl-Allow-S
 +--- a/lib/Kconfig
 ++++ b/lib/Kconfig
 +@@ -484,7 +484,7 @@ config OF_LIBFDT_OVERLAY
-+ 
++
 + config SPL_OF_LIBFDT
 + 	bool "Enable the FDT library for SPL"
 +-	default y if SPL_OF_CONTROL
@@ -1503,7 +1503,7 @@ diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-5-5-spl-Allow-S
 + 	  This enables the FDT library (libfdt). It provides functions for
 + 	  accessing binary device tree images in memory, such as adding and
 +@@ -505,7 +505,7 @@ config SPL_OF_LIBFDT_ASSUME_MASK
-+ 
++
 + config TPL_OF_LIBFDT
 + 	bool "Enable the FDT library for TPL"
 +-	default y if TPL_OF_CONTROL
@@ -1516,10 +1516,10 @@ diff -rNEZbwBdu3 a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 +++ b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network	2020-05-21 22:10:35.000000000 +0800
 @@ -5,6 +5,9 @@
  board_config_update
- 
+
  case "$(board_name)" in
 +"friendlyelec,nanopi-r2-rev00")
-+	ucidef_set_interfaces_lan_wan "eth0" "eth1"
++	ucidef_set_interfaces_lan_wan "eth1" "eth0"
 +	;;
  *)
  	ucidef_set_interface_lan 'eth0'
@@ -2699,13 +2699,13 @@ diff -rNEZbwBdu3 a/target/linux/rockchip/image/Makefile b/target/linux/rockchip/
 --- a/target/linux/rockchip/image/Makefile	2020-05-11 22:49:04.000000000 +0800
 +++ b/target/linux/rockchip/image/Makefile	2020-05-21 22:10:35.000000000 +0800
 @@ -24,7 +24,7 @@
- 
+
  define Build/boot-script
  	# Make an U-boot image and copy it to the boot partition
 -	mkimage -A arm -O linux -T script -C none -a 0 -e 0 -d mmc.bootscript $@.boot/boot.scr
 +	mkimage -A arm -O linux -T script -C lzma -a 0 -e 0 -d mmc.bootscript $@.boot/boot.scr
  endef
- 
+
  define Build/pine64-img
 @@ -50,7 +50,7 @@
  ### Devices ###
@@ -2721,7 +2721,7 @@ diff -rNEZbwBdu3 a/target/linux/rockchip/image/mmc.bootscript b/target/linux/roc
 +++ b/target/linux/rockchip/image/mmc.bootscript	2020-05-21 22:10:35.000000000 +0800
 @@ -1,8 +1,18 @@
  part uuid mmc ${devnum}:2 uuid
- 
+
 -setenv bootargs "console=ttyS2,1500000 console=tty1 earlycon=uart8250,mmio32,0xff1a0000 root=PARTUUID=${uuid} rw rootwait"
 +if test $stdout = 'serial@ff1a0000' ;
 +then serial_addr=',0xff1a0000';
@@ -2730,10 +2730,10 @@ diff -rNEZbwBdu3 a/target/linux/rockchip/image/mmc.bootscript b/target/linux/roc
 +fi;
 +
 +setenv bootargs "console=ttyS2,1500000 console=tty1 earlycon=uart8250,mmio32${serial_addr} swiotlb=1 root=PARTUUID=${uuid} rw rootwait loglevel=9";
- 
+
  load mmc ${devnum}:1 ${fdt_addr_r} rockchip.dtb
  load mmc ${devnum}:1 ${kernel_addr_r} kernel.img
- 
+
 -booti ${kernel_addr_r} - ${fdt_addr_r}
 +echo "Uncompress lzma kernel into memmory.."
 +setexpr kernel_addr_dec ${filesize} + ${kernel_addr_r} || kernel_addr_dec=0x03000000
