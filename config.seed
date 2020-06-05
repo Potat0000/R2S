@@ -54,7 +54,6 @@ CONFIG_PACKAGE_luci-app-openclash=y
 CONFIG_TARGET_rockchip=y
 CONFIG_TARGET_rockchip_armv8=y
 CONFIG_TARGET_rockchip_armv8_DEVICE_friendlyelec_nanopi-r2-rev00=y
-CONFIG_LUCI_LANG_zh_Hans=y
 CONFIG_LUCI_LANG_zh-cn=y
 CONFIG_PACKAGE_kmod-usb-net=y
 CONFIG_PACKAGE_kmod-usb-net-rtl8150=y
