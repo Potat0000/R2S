@@ -96,7 +96,7 @@ jobs:
           cp -a ./target/linux/generic/files/* ../kernel/
           cd ../kernel
           wget -O net/netfilter/xt_FULLCONENAT.c https://raw.githubusercontent.com/Chion82/netfilter-full-cone-nat/master/xt_FULLCONENAT.c
-          wget -O ../fullcone_nat.patch https://raw.githubusercontent.com/fanck0605/nanopi-r2s/openwrt-lean/patches/001-kernel-add-full_cone_nat.patch
+          wget -O ../fullcone_nat.patch https://raw.githubusercontent.com/fanck0605/nanopi-r2s/openwrt-lienol/patches/001-kernel-add-full_cone_nat.patch
           git apply ../fullcone_nat.patch
 
       - name: Upgrade Argon theme
