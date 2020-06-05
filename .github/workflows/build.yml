@@ -121,31 +121,26 @@ jobs:
           let make_process=$(nproc)+1
           make -j${make_process} V=s || make -j${make_process} V=s
 
-      - name: Zip Files
-        run: |
-          rm -rf artifact
-          mkdir artifact
-          cd openwrt/bin/targets/rockchip/armv8
-          rm -rf *ext4-sysupgrade.img.gz
-          rm -rf packages
-          gzip -d *.gz || true
-          gzip *.img
-          mv * ../../../../../artifact
-          cd ../../../../../artifact
-          zip ../R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}-ROM.zip *
-
       - name: Upload Artifact
         continue-on-error: true
         uses: actions/upload-artifact@master
         with:
-          name: R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}-ROM
-          path: ./artifact/
+          name: R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}-ALL
+          path: ./openwrt/bin/targets/rockchip/armv8
+
+      - name: Zip Files
+        run: |
+          cd openwrt/bin/targets/rockchip/armv8
+          gzip -d *squashfs*.gz || true
+          gzip *.img
+          mv *squashfs*.gz ../../../../../R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}-ROM.gz
 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: R2S-${{ steps.set_name.outputs.username }}-*-ROM.zip
+          artifacts: R2S-${{ steps.set_name.outputs.username }}-*-ROM.gz
+          artifactContentType: application/gzip
           body: Built at ${{ steps.set_time.outputs.build_time }} for ${{ matrix.version }}
           commit: ${{ github.sha }}
           name: R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}
