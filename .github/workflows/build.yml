@@ -3,7 +3,7 @@ name: R2S FriendlyWrt
 on:
   push:
     branches:
-      - master
+      - friendlywrt
 
 jobs:
   build:
@@ -28,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
         with:
-          ref: master
+          ref: ${{ github.ref }}
 
       - name: Set Username
         id: set_name
