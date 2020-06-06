@@ -2,6 +2,7 @@
 # Which would only be built into WithFeatures version
 
 CONFIG_PACKAGE_luci-app-aria2=y
+
 CONFIG_PACKAGE_luci-app-zerotier=y
 
 CONFIG_PACKAGE_docker-ce=y
@@ -12,10 +13,6 @@ CONFIG_PACKAGE_luci-lib-jsonc=y
 CONFIG_PACKAGE_smartdns=y
 CONFIG_PACKAGE_luci-app-smartdns=y
 
-
-
-######################### GFW Package #########################
-#########################    Start    #########################
 CONFIG_PACKAGE_luci-app-passwall=y
 CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Trojan=y
 CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks=y
@@ -42,5 +39,3 @@ CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_Redsocks2=y
 CONFIG_PACKAGE_v2ray=y
 CONFIG_PACKAGE_v2ray-plugin=y
 CONFIG_V2RAY_JSON_INTERNAL=y
-#########################     End     #########################
-######################### GFW Package #########################
