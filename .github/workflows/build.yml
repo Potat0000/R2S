@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - friendlywrt
+  watch:
+    types: [started]
 
 jobs:
   build:
