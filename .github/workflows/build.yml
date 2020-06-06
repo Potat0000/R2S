@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      enable-1512mhz: true
+      should_run: ${{ github.event_name == 'push' || (github.event_name == 'watch' && matrix.version == 'SelfUse') }}
+      enable_1512mhz: true
       ssh_debug: false
 
     strategy:
@@ -23,16 +24,19 @@ jobs:
     steps:
 
       - name: Setup timezone
+        if: env.should_run == 'true'
         uses: zcong1993/setup-timezone@master
         with:
           timezone: Asia/Shanghai
 
       - name: Checkout
+        if: env.should_run == 'true'
         uses: actions/checkout@master
         with:
           ref: ${{ github.ref }}
 
       - name: Set Username
+        if: env.should_run == 'true'
         id: set_name
         run: |
           if [ "$GITHUB_ACTOR" = "gyj1109" ];then
@@ -42,6 +46,7 @@ jobs:
           fi
 
       - name: Initialization Environment
+        if: env.should_run == 'true'
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
@@ -55,6 +60,7 @@ jobs:
           sudo cp repo/repo /usr/bin/
 
       - name: Initialization Source
+        if: env.should_run == 'true'
         run: |
           mkdir friendlywrt-rk3328
           cd friendlywrt-rk3328
@@ -63,6 +69,7 @@ jobs:
           cd friendlywrt/ && git fetch --unshallow
 
       - name: Change Feeds to Lean
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328
           git clone https://github.com/coolsnowwolf/lede
@@ -74,10 +81,12 @@ jobs:
           sed -i 's/^src-git packages.*/src-git packages https:\/\/github.com\/coolsnowwolf\/packages/' feeds.conf.default
 
       - name: Add Packages to Lean
+        if: env.should_run == 'true'
         run: |
           echo "src-git scw https://github.com/songchenwen/openwrt-package" >> friendlywrt-rk3328/friendlywrt/feeds.conf.default
 
       - name: Install Openwrt Libs
+        if: env.should_run == 'true'
         run: |
           git config --global user.email "action@github.com" && git config --global user.name "GitHub Action"
           cd friendlywrt-rk3328
@@ -86,6 +95,7 @@ jobs:
           cp -r openwrt/package/libs friendlywrt/package/
 
       - name: Install Chuck's Kernel
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328
           rm -rf kernel
@@ -102,6 +112,7 @@ jobs:
           git apply ../fullcone_nat.patch
 
       - name: Upgrade Argon theme
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328/friendlywrt/package/lean
           rm -rf luci-theme-argon
@@ -109,6 +120,7 @@ jobs:
           sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' default-settings/files/zzz-default-settings
 
       - name: Add SSRP
+        if: env.should_run == 'true'
         run: |
           git clone https://github.com/fw876/helloworld.git
           sed -i 's/"admin", "services", "shadowsocksr"/"admin", "vpn", "shadowsocksr"/g' `grep '"admin", "services", "shadowsocksr"' -rl helloworld/luci-app-ssr-plus`
@@ -116,6 +128,7 @@ jobs:
           rm -rf helloworld
 
       - name: Add OpenClash
+        if: env.should_run == 'true'
         run: |
           git clone -b master https://github.com/vernesong/OpenClash.git
           mv OpenClash/luci-app-openclash friendlywrt-rk3328/friendlywrt/package
@@ -126,29 +139,34 @@ jobs:
           chmod +x clash
 
       - name: Add AdGuard Home
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328/friendlywrt/package
           git clone https://github.com/rufengsuixing/luci-app-adguardhome.git
 
       - name: Add Luci-R2SFlasher
+        if: env.should_run == 'true'
         run: |
           git clone https://github.com/songchenwen/nanopi-r2s
           mv nanopi-r2s/luci-app-r2sflasher friendlywrt-rk3328/friendlywrt/package
           rm -rf nanopi-r2s
 
       - name: Add SmartDNS
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328/friendlywrt/package
           git clone https://github.com/pymumu/openwrt-smartdns.git smartdns
           git clone -b lede https://github.com/pymumu/luci-app-smartdns.git
 
       - name: Update Feeds
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328/friendlywrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: Install Mods
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328/friendlywrt
           git apply ../../files/enable_autocore.diff
@@ -160,13 +178,14 @@ jobs:
           sed -i '/pcdata(boardinfo.system or "?")/d' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 
       - name: Unlock CPU 1512Mhz
-        if: env.enable-1512mhz == 'true'
+        if: env.enable_1512mhz == 'true' && env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328/kernel
           wget https://raw.githubusercontent.com/armbian/build/master/patch/kernel/rockchip64-dev/RK3328-enable-1512mhz-opp.patch
           git apply RK3328-enable-1512mhz-opp.patch
 
       - name: Generate config
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328
           find device/ -name distfeeds.conf -delete
@@ -178,16 +197,18 @@ jobs:
           rm base_config app_config
 
       - name: Generate addon config
-        if: matrix.version == 'WithFeatures'
+        if: matrix.version == 'WithFeatures' && env.should_run == 'true'
         run: |
           sed -e '/^#.*$/d' -e '/^$/d' config.addon.seed >> friendlywrt-rk3328/configs/config_rk3328
 
       - name: Update Target.mk
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328/friendlywrt/include
           sed -i 's/dnsmasq /dnsmasq-full default-settings luci /' target.mk
 
       - name: Add checkwan script
+        if: env.should_run == 'true'
         run: |
           git clone https://github.com/lsl330/R2S-SCRIPTS
           mv R2S-SCRIPTS/checkwan.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/usr/bin
@@ -199,11 +220,13 @@ jobs:
           sed -i '/exit/i\nohup /bin/sh /usr/bin/checkwan.sh  1>/dev/null 2>&1 &' etc/rc.local
 
       - name: Add setup.sh script
+        if: env.should_run == 'true'
         run: |
           cp files/setup.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/root
           chmod +x friendlywrt-rk3328/friendlywrt/package/base-files/files/root/setup.sh
 
       - name: Add OPKG Feeds
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328
           git clone -b src --depth 1 https://github.com/songchenwen/nanopi-r2s-opkg-feeds.git
@@ -212,6 +235,7 @@ jobs:
           rm -rf nanopi-r2s-opkg-feeds
 
       - name: Add Temperature & Frequency to Netdata
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
           mkdir -p usr/lib/netdata/charts.d
@@ -219,21 +243,24 @@ jobs:
           mv ../../../../../files/freq.chart.sh usr/lib/netdata/charts.d/
 
       - name: Add UPX
+        if: env.should_run == 'true'
         run: |
           mkdir -p friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/
           ln -s /usr/bin/upx-ucl friendlywrt-rk3328/friendlywrt/staging_dir/host/bin/upx
 
       - name: Setup Debug Session
-        if: env.ssh_debug == 'true'
+        if: env.ssh_debug == 'true' && env.should_run == 'true'
         uses: P3TERX/debugger-action@master
 
       - name: Clean src
+        if: env.should_run == 'true'
         run: |
           cd friendlywrt-rk3328
           rm -rf lede
           rm -rf openwrt
 
       - name: Set Build Time
+        if: env.should_run == 'true'
         id: set_time
         run: |
           build_time=$(date +%Y-%m-%dT%H-%M)
@@ -241,12 +268,14 @@ jobs:
           echo "##[set-output name=build_time;]$build_time"
 
       - name: Build
+        if: env.should_run == 'true'
         run: |
           sed -i '/Firmware Version/a\\t\t\tBuilt by ${{ steps.set_name.outputs.username }} @ ${{ steps.set_time.outputs.build_time }} (${{ matrix.version }}) \/' friendlywrt-rk3328/friendlywrt/package/lean/autocore/files/index.htm
           cd friendlywrt-rk3328
           ./build.sh nanopi_r2s.mk
 
       - name: Fix FriendlyWrt rootfs owner and group
+        if: env.should_run == 'true'
         run: |
           sudo df -lh
           lodev=$(sudo losetup -f)
@@ -259,6 +288,7 @@ jobs:
           sudo losetup -d $lodev
 
       - name: Zip Files
+        if: env.should_run == 'true'
         run: |
           rm -rf ./artifact/
           mkdir -p ./artifact/
@@ -269,6 +299,7 @@ jobs:
           zip ../R2S-${{ steps.set_name.outputs.username }}-${{ matrix.version }}-${{ steps.set_time.outputs.build_time }}-ROM.zip *
 
       - name: Upload Artifact
+        if: env.should_run == 'true'
         continue-on-error: true
         uses: actions/upload-artifact@master
         with:
@@ -276,6 +307,7 @@ jobs:
           path: ./artifact/
 
       - name: Create Release
+        if: env.should_run == 'true'
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
