@@ -207,17 +207,12 @@ jobs:
           cd friendlywrt-rk3328/friendlywrt/include
           sed -i 's/dnsmasq /dnsmasq-full default-settings luci /' target.mk
 
-      - name: Add checkwan script
+      - name: Add check_net script
         if: env.should_run == 'true'
         run: |
-          git clone https://github.com/lsl330/R2S-SCRIPTS
-          mv R2S-SCRIPTS/checkwan.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/usr/bin
-          rm -rf R2S-SCRIPTS
           cp files/check_net.sh friendlywrt-rk3328/friendlywrt/package/base-files/files/usr/bin/check_net
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
-          chmod +x usr/bin/checkwan.sh
           chmod +x usr/bin/check_net
-          sed -i '/exit/i\nohup /bin/sh /usr/bin/checkwan.sh  1>/dev/null 2>&1 &' etc/rc.local
 
       - name: Add setup.sh script
         if: env.should_run == 'true'
