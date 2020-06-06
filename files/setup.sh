@@ -8,34 +8,28 @@ setup_ssid()
         return
     fi
 
-    logger "${TAG}: setup $1's ssid"
-    wlan_path=/sys/devices/`uci get wireless.${r}.path`
-    wlan_path=`find ${wlan_path} -name wlan* | tail -n 1`
-
-    local dev_path=/sys/devices/`uci get wireless.${r}.path`
-
-    if [ -e "${dev_path}/../idVendor" -a -e "${dev_path}/../idProduct" ]; then
-	    idVendor=`cat ${dev_path}/../idVendor`
-	    idProduct=`cat ${dev_path}/../idProduct`
-
-        # onboard wifi
-        # t4: 0x02d0:0x4356
-        # r2: 0x02d0:0xa9bf
-        if [ "x${idVendor}:${idProduct}" = "x0x02d0:0x4356" ] \
-                || [ "x${idVendor}:${idProduct}" = "x0x02d0:0xa9bf" ]; then
-                uci set wireless.${r}.hwmode='11a'
-                uci set wireless.${r}.channel='40'
-                uci set wireless.${r}.htmode='HT40'
-                uci set wireless.${r}.country='AU'
-        fi
-    fi
+    logger "setup.sh: setup $1's ssid"
 
     uci set wireless.${r}.disabled=0
-    uci set wireless.default_${r}.ssid=`uci get system.@system[0].hostname`
-    uci set wireless.default_${r}.encryption=psk2
-    uci set wireless.default_${r}.key=password
+    uci set wireless.${r}.hwmode='11a'
+    uci set wireless.${r}.channel='40'
+    uci set wireless.${r}.htmode='HT40'
+    uci set wireless.${r}.country='AU'
+    uci set wireless.${r}.noscan=1     # Force 40MHz
+    uci set wireless.default_${r}.wps_pushbutton=0
+
+    wlan_path=/sys/devices/`uci get wireless.${r}.path`
+    wlan_path=`find ${wlan_path} -name wlan* | tail -n 1`
+    local default_name=FriendlyWrt-`cat ${wlan_path}/address`
+    if [ "`uci get wireless.default_${r}.ssid`" == "${default_name}" ]; then
+        uci set wireless.default_${r}.ssid="`uci get system.@system[0].hostname`"
+        uci set wireless.default_${r}.encryption='none'
+    fi
+
     uci commit
 }
+
+logger "/root/setup.sh running"
 
 WIFI_NUM=`find /sys/class/net/ -name wlan* | wc -l`
 if [ ${WIFI_NUM} -gt 0 ]; then
@@ -56,10 +50,7 @@ EOF
     for i in `seq 0 ${WIFI_NUM}`; do
         setup_ssid radio${i}
     done
-    NEED_RESTART_SERVICE=1
 fi
-
-/etc/init.d/led restart
 
 # fix netdata issue
 [ -d /usr/share/netdata/web ] && chown -R root:root /usr/share/netdata/web
@@ -74,6 +65,15 @@ sed -i 's/charts.d = no/charts.d = yes/' /etc/netdata/netdata.conf
 cp /usr/lib/netdata/conf.d/charts.d.conf /etc/netdata/
 echo 'temp=yes' >> /etc/netdata/charts.d.conf
 echo 'freq=yes' >> /etc/netdata/charts.d.conf
+
+logger "setup.sh: restart services"
+/etc/init.d/led restart
+/etc/init.d/network restart
+/etc/init.d/dnsmasq restart
 /etc/init.d/netdata restart
 
 /usr/bin/check_net
+
+sed -i '/exit/i\for i in /sys/class/leds/* ; do echo 0 > "$i"/brightness ; done' etc/rc.local
+
+logger "setup.sh: done"
