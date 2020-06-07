@@ -14,7 +14,8 @@ setup_ssid()
     uci set wireless.${r}.hwmode='11a'
     uci set wireless.${r}.channel='40'
     uci set wireless.${r}.htmode='HT40'
-    uci set wireless.${r}.country='AU'
+    uci set wireless.${r}.country='00'
+    uci set wireless.${r}.legacy_rates=0
     uci set wireless.${r}.noscan=1     # Force 40MHz
     uci set wireless.default_${r}.wps_pushbutton=0
 
