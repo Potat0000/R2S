@@ -138,6 +138,12 @@ jobs:
           curl -L https://github.com/vernesong/OpenClash/releases/download/Clash/clash-linux-armv8.tar.gz | tar zxf -
           chmod +x clash
 
+      - name: Add DockerMan
+        if: env.should_run == 'true'
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/package
+          git clone https://github.com/lisaac/luci-app-dockerman.git
+
       - name: Add AdGuard Home
         if: env.should_run == 'true'
         run: |
