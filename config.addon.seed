@@ -3,6 +3,7 @@
 
 CONFIG_PACKAGE_luci-app-adguardhome=y
 CONFIG_PACKAGE_luci-app-aria2=y
+CONFIG_PACKAGE_luci-app-ddns=y
 CONFIG_PACKAGE_luci-app-zerotier=y
 
 CONFIG_PACKAGE_smartdns=y
