@@ -1,7 +1,5 @@
 ######################### Add Package #########################
 #########################    Start    #########################
-CONFIG_PACKAGE_docker-ce=y
-CONFIG_PACKAGE_luci-app-dockerman=y
 CONFIG_PACKAGE_luci-app-filetransfer=y
 CONFIG_PACKAGE_luci-app-netdata=y
 CONFIG_PACKAGE_luci-app-openclash=y
@@ -9,8 +7,6 @@ CONFIG_PACKAGE_luci-app-r2sflasher=y
 CONFIG_PACKAGE_luci-app-ttyd=y
 CONFIG_PACKAGE_luci-app-unblockmusic=y
 CONFIG_PACKAGE_luci-app-vlmcsd=y
-CONFIG_PACKAGE_luci-lib-docker=y
-CONFIG_PACKAGE_luci-lib-jsonc=y
 CONFIG_PACKAGE_ttyd=y
 CONFIG_UnblockNeteaseMusic_Go=y
 CONFIG_UnblockNeteaseMusic_NodeJS=y
