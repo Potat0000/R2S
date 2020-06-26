@@ -78,6 +78,4 @@ chmod +x /etc/init.d/screen
 
 /usr/bin/check_net
 
-sed -i '/exit/i\for i in /sys/class/leds/* ; do echo 0 > "$i"/brightness ; done' etc/rc.local
-
 logger "setup.sh: done"
