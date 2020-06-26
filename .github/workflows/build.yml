@@ -243,6 +243,13 @@ jobs:
           mv ../../../../../files/temp.chart.sh usr/lib/netdata/charts.d/
           mv ../../../../../files/freq.chart.sh usr/lib/netdata/charts.d/
 
+      - name: Install Screen Program
+        if: env.should_run == 'true'
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/package/base-files/files
+          mv ../../../../../files/screen root/
+          chmod +x root/screen/screen
+
       - name: Add UPX
         if: env.should_run == 'true'
         run: |
