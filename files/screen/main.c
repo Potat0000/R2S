@@ -72,20 +72,20 @@ int main() {
         up_time1 = up_time2;
         down_time1 = down_time2;
         memset(content_buff, 0, BUFMAX);
-        if((fp=popen("ifconfig eth0 | grep \"bytes\" | awk '{print $6}' | cut -f 2 -d :", "r")) != NULL) {
+        if((fp=popen("cat /sys/class/net/eth0/statistics/tx_bytes", "r")) != NULL) {
             fgets(content_buff, 8, fp);
             fclose(fp);
             up_time2 = atoi(content_buff);
         }
         memset(content_buff, 0, BUFMAX);
-        if((fp=popen("ifconfig eth0 | grep \"bytes\" | awk '{print $2}' | cut -f 2 -d :", "r")) != NULL) {
+        if((fp=popen("cat /sys/class/net/eth0/statistics/rx_bytes", "r")) != NULL) {
             fgets(content_buff, 8, fp);
             fclose(fp);
             down_time2 = atoi(content_buff);
         }
         memset(buf, 0, BUFMAX);
-        delta_up_time = (up_time2 - up_time1) / flush_time / 16 * 10;   // KB/s
-        if ((up_time1 == 0) || (up_time2 == 0)) {delta_up_time = 0;}
+        delta_up_time = (up_time2 - up_time1) / flush_time / 16;         // KB/s
+        if ((up_time1 == 0) || (up_time2 == 0) || (delta_up_time >= 1024000) || (delta_up_time < 0)) {delta_up_time = 0;}
         if (delta_up_time >= 1000) {
             sprintf(buf, "    Up: %6.2f MB/s", delta_up_time / 1024);
         } else {
@@ -93,8 +93,8 @@ int main() {
         }
         print_strln(buf);
         memset(buf, 0, BUFMAX);
-        delta_down_time = (down_time2 - down_time1) / flush_time / 16 * 10;   // KB/s
-        if ((down_time1 == 0) || (down_time2 == 0)) {delta_down_time = 0;}
+        delta_down_time = (down_time2 - down_time1) / flush_time / 1.2;  // KB/s
+        if ((down_time1 == 0) || (down_time2 == 0) || (delta_down_time >= 1024000) || (delta_down_time < 0)) {delta_down_time = 0;}
         if (delta_down_time >= 1000) {
             sprintf(buf, "   Down:%6.2f MB/s", delta_down_time / 1024);
         } else {
