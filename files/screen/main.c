@@ -15,10 +15,12 @@
 /* Header Files */
 #include "I2C.h"
 #include "SSD1306_OLED.h"
-
 #define BUFMAX SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT
 
-const float flush_time = 0.8;
+// 'eth0' for the side port, 'eth1' for the middle port, 'br_lan' for the total.
+const char eth_port[] = "eth0";
+// Just as a waiting time, the time spent in data collection is not considered.
+const float flush_time = 0.5;
 
 static volatile sig_atomic_t keep_running = 1;
 static void sig_handler(int _) {
@@ -45,6 +47,14 @@ int main() {
     setTextColor(WHITE);
     setTextWrap(false);
 
+    char down_command[120], up_command[120];
+    strcpy(down_command, "ifstat -i ");
+    strcat(down_command, eth_port);
+    strcat(down_command, " -t 0.1 1 | tail -n 1 | tr -s ' ' | cut -d ' ' -f ");
+    strcpy(up_command, down_command);
+    strcat(down_command, "2");
+    strcat(up_command, "3");
+
     signal(SIGINT, sig_handler);
     while (keep_running) {
         clearDisplay();
@@ -69,38 +79,31 @@ int main() {
             print_strln(buf);
         }
 
-        up_time1 = up_time2;
-        down_time1 = down_time2;
         memset(content_buff, 0, BUFMAX);
-        if((fp=popen("cat /sys/class/net/eth0/statistics/tx_bytes", "r")) != NULL) {
+        memset(buf, 0, BUFMAX);
+        if((fp=popen(up_command, "r")) != NULL) {
             fgets(content_buff, 8, fp);
             fclose(fp);
-            up_time2 = atoi(content_buff);
+            if (atof(content_buff) >= 1000) {
+                sprintf(buf, "    Up: %6.2f MB/s", atof(content_buff) / 1024);
+            } else {
+                sprintf(buf, "    Up: %6.2f KB/s", atof(content_buff));
+            }
+            print_strln(buf);
         }
+
         memset(content_buff, 0, BUFMAX);
-        if((fp=popen("cat /sys/class/net/eth0/statistics/rx_bytes", "r")) != NULL) {
+        memset(buf, 0, BUFMAX);
+        if((fp=popen(down_command, "r")) != NULL) {
             fgets(content_buff, 8, fp);
             fclose(fp);
-            down_time2 = atoi(content_buff);
+            if (atof(content_buff) >= 1000) {
+                sprintf(buf, "   Down:%6.2f MB/s", atof(content_buff) / 1024);
+            } else {
+                sprintf(buf, "   Down:%6.2f KB/s", atof(content_buff));
+            }
+            print_strln(buf);
         }
-        memset(buf, 0, BUFMAX);
-        delta_up_time = (up_time2 - up_time1) / flush_time / 16;         // KB/s
-        if ((up_time1 == 0) || (up_time2 == 0) || (delta_up_time >= 1024000) || (delta_up_time < 0)) {delta_up_time = 0;}
-        if (delta_up_time >= 1000) {
-            sprintf(buf, "    Up: %6.2f MB/s", delta_up_time / 1024);
-        } else {
-            sprintf(buf, "    Up: %6.2f KB/s", delta_up_time);
-        }
-        print_strln(buf);
-        memset(buf, 0, BUFMAX);
-        delta_down_time = (down_time2 - down_time1) / flush_time / 1.2;  // KB/s
-        if ((down_time1 == 0) || (down_time2 == 0) || (delta_down_time >= 1024000) || (delta_down_time < 0)) {delta_down_time = 0;}
-        if (delta_down_time >= 1000) {
-            sprintf(buf, "   Down:%6.2f MB/s", delta_down_time / 1024);
-        } else {
-            sprintf(buf, "   Down:%6.2f KB/s", delta_down_time);
-        }
-        print_strln(buf);
 
         Display();
         usleep(flush_time * 1000000);
