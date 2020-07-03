@@ -38,6 +38,7 @@ logger "setup.sh: restart services"
 /etc/init.d/netdata restart
 
 mv /root/screen/screen.init.d /etc/init.d/screen
+chmod +x /root/screen/screen
 chmod +x /etc/init.d/screen
 
 /usr/bin/check_net
