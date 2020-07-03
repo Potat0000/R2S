@@ -43,4 +43,12 @@ chmod +x /etc/init.d/screen
 
 /usr/bin/check_net
 
+if [ `grep -c "/sys/class/leds/" /etc/rc.local` -eq '0' ]; then
+    sed -i '/exit/i\for i in /sys/class/leds/* ; do echo 0 > "$i"/brightness ; done' /etc/rc.local
+fi
+
+if [ `grep -c "/etc/openclash/config" /etc/sysupgrade.conf` -eq '0' ]; then
+    echo "/etc/openclash/config/" >> /etc/sysupgrade.conf
+fi
+
 logger "setup.sh: done"
