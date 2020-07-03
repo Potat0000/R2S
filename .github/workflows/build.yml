@@ -220,6 +220,12 @@ jobs:
           cd friendlywrt-rk3328/friendlywrt/package/base-files/files
           chmod +x usr/bin/check_net
 
+      - name: Add wireless setting file
+        if: env.should_run == 'true'
+        run: |
+          mkdir -p friendlywrt-rk3328/friendlywrt/package/base-files/files/etc/config
+          cp files/wireless friendlywrt-rk3328/friendlywrt/package/base-files/files/etc/config/wireless
+
       - name: Add setup.sh script
         if: env.should_run == 'true'
         run: |

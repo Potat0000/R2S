@@ -1,40 +1,9 @@
 #!/bin/sh
 
-setup_ssid()
-{
-    local r=$1
-
-    if ! uci show wireless.${r} >/dev/null 2>&1; then
-        return
-    fi
-
-    logger "setup.sh: setup $1's ssid"
-
-    uci set wireless.${r}.disabled=0
-    uci set wireless.${r}.hwmode='11a'
-    uci set wireless.${r}.channel='40'
-    uci set wireless.${r}.htmode='HT40'
-    uci set wireless.${r}.country='00'
-    uci set wireless.${r}.legacy_rates=0
-    uci set wireless.${r}.noscan=1     # Force 40MHz
-    uci set wireless.default_${r}.wps_pushbutton=0
-
-    wlan_path=/sys/devices/`uci get wireless.${r}.path`
-    wlan_path=`find ${wlan_path} -name wlan* | tail -n 1`
-    local default_name=FriendlyWrt-`cat ${wlan_path}/address`
-    if [ "`uci get wireless.default_${r}.ssid`" == "${default_name}" ]; then
-        uci set wireless.default_${r}.ssid="`uci get system.@system[0].hostname`"
-        uci set wireless.default_${r}.encryption='none'
-    fi
-
-    uci commit
-}
-
 logger "/root/setup.sh running"
 
 WIFI_NUM=`find /sys/class/net/ -name wlan* | wc -l`
 if [ ${WIFI_NUM} -gt 0 ]; then
-
     # make sure lan interface exist
     if [ -z "`uci get network.lan`" ]; then
         uci batch <<EOF
@@ -46,11 +15,6 @@ set network.lan.netmask='255.255.255.0'
 set network.lan.ip6assign='60'
 EOF
     fi
-
-    # update /etc/config/wireless
-    for i in `seq 0 ${WIFI_NUM}`; do
-        setup_ssid radio${i}
-    done
 fi
 
 # fix netdata issue
