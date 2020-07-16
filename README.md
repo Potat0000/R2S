@@ -1,4 +1,6 @@
-# NanoPi R2S OpenWrt 固件自动编译
+# NanoPi R2S FriendlyWrt 固件自动编译
+
+**仓库已废弃，迁移至 [gyj1109/R2S-OpenWrt](https://github.com/gyj1109/R2S-OpenWrt)**
 
 喜欢记得右上角Star哟！！
 
